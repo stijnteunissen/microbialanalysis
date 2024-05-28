@@ -40,14 +40,17 @@ if (!requireNamespace("lubridate", quietly = TRUE)){install.packages("lubridate"
 if (!requireNamespace("DECIPHER", quietly = TRUE)){install.packages("DECIPHER")}
 if (!requireNamespace("ensembleTax", quietly = TRUE)){install.packages("ensembleTax")}
 if (!requireNamespace("lmerTest", quietly = TRUE)){install.packages("lmerTest")}
-if (!requireNamespace("brewer.pal", quietly = TRUE)){install.packages("brewer.pal")}
 if (!requireNamespace("scales", quietly = TRUE)){install.packages("scales")}
 if (!requireNamespace("viridis", quietly = TRUE)){install.packages("viridis")}
 if (!requireNamespace("ggrepel", quietly = TRUE)){install.packages("ggrepel")}
+if (!requireNamespace("emmeans", quietly = TRUE)){install.packages("emmeans")}
+if (!requireNamespace("ggforce", quietly = TRUE)){install.packages("ggforce")}
+if (!requireNamespace("gridExtra", quietly = TRUE)){install.packages("gridExtra")}
+if (!requireNamespace("patchwork", quietly = TRUE)){install.packages("patchwork")}
 ```
 
 ```{r library loading, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# load required packages
+# load required packages 
 library(phyloseq)
 library(qiime2R)
 library(tidyverse)
@@ -69,10 +72,13 @@ library(lubridate)
 library(DECIPHER)
 library(ensembleTax)
 library(lmerTest)
-library(RColorBrewer)
 library(scales)
 library(viridis)
 library(ggrepel)
+library(emmeans)
+library(ggforce)
+library(gridExtra)
+library(patchwork)
 ```
 
 ```{r project organization, message=F, echo=F, eval=T, warning=F, include=F, cache=T}
@@ -84,9 +90,7 @@ proj = "STEU_Contamination_analyse"
 if(!dir.exists("figures")){dir.create("figures")}
 if(!dir.exists("output_data")){dir.create("output_data")} 
 if(!dir.exists("scripts")){dir.create("scripts")} 
-if(!dir.exists("scripts/QIIME2")){dir.create("scripts/QIIME2")} 
 ```
-
 
 ```{r import data, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
 # Script cleaning data
@@ -231,74 +235,91 @@ sample_data(physeq_YXIN_proj1_Q16712)$read_count=sample_sums(physeq_YXIN_proj1_Q
 
 physeq_YXIN_proj1_Q16712 = tax_clean(physeq_YXIN_proj1_Q16712)
 
-# # External data
-# #creating phyloseq objects for PRJEB34118
-# metadata = read.delim("External_data/PRJEB34118/PRJEB34118_metadata.tsv", header=T, sep = "\t") 
-# colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
-# metadata = sample_data(metadata)
-# sample_names(metadata) = metadata$SampleID
-# 
-# physeq_PRJEB34118 = qza_to_phyloseq(
-#   features = "External_data/PRJEB34118/PRJEB34118_table.qza",
-#   tree = "External_data/PRJEB34118/PRJEB34118_rooted-tree.qza",
-#   taxonomy = "External_data/PRJEB34118/PRJEB34118_silva-138-99-nb-classifier.qza",
-#   )
-# sample_data(physeq_PRJEB34118)  = sample_data(metadata)
-# 
-# sample_data(physeq_PRJEB34118)$read_count=sample_sums(physeq_PRJEB34118)
-# 
-# physeq_PRJEB34118 = tax_clean(physeq_PRJEB34118)
-# 
-# #creating phyloseq objects for PRJEB36253
-# metadata = read.delim("External_data/PRJEB36253/PRJEB36253_metadata.tsv", header=T, sep = "\t") 
-# colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
-# metadata = sample_data(metadata)
-# sample_names(metadata) = metadata$SampleID
-# 
-# physeq_PRJEB36253 = qza_to_phyloseq(
-#   features = "External_data/PRJEB36253/PRJEB36253_table.qza",
-#   tree = "External_data/PRJEB36253/PRJEB36253_rooted-tree.qza",
-#   taxonomy = "External_data/PRJEB36253/PRJEB36253_silva-138-99-nb-classifier.qza",
-#   )
-# sample_data(physeq_PRJEB36253)  = sample_data(metadata)
-# 
-# sample_data(physeq_PRJEB36253)$read_count=sample_sums(physeq_PRJEB36253)
-# 
-# physeq_PRJEB36253 = tax_clean(physeq_PRJEB36253)
-# 
-# #creating phyloseq objects for PRJNA648321
-# metadata = read.delim("External_data/PRJNA648321/PRJNA648321_metadata.tsv", header=T, sep = "\t") 
-# colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
-# metadata = sample_data(metadata)
-# sample_names(metadata) = metadata$SampleID
-# 
-# physeq_PRJNA648321 = qza_to_phyloseq(
-#   features = "External_data/PRJNA648321/PRJNA648321_table.qza",
-#   tree = "External_data/PRJNA648321/PRJNA648321_rooted-tree.qza",
-#   taxonomy = "External_data/PRJNA648321/PRJNA648321_silva-138-99-nb-classifier.qza",
-#   )
-# sample_data(physeq_PRJNA648321)  = sample_data(metadata)
-# 
-# sample_data(physeq_PRJNA648321)$read_count=sample_sums(physeq_PRJNA648321)
-# 
-# physeq_PRJNA648321 = tax_clean(physeq_PRJNA648321)
-# 
-# #creating phyloseq objects for PRJNA862376
-# metadata = read.delim("External_data/PRJNA862376//PRJNA862376_metadata.tsv", header=T, sep = "\t") 
-# colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
-# metadata = sample_data(metadata)
-# sample_names(metadata) = metadata$SampleID
-# 
-# physeq_PRJNA862376 = qza_to_phyloseq(
-#   features = "External_data/PRJNA862376/PRJNA862376_table.qza",
-#   tree = "External_data/PRJNA862376/PRJNA862376_rooted-tree.qza",
-#   taxonomy = "External_data/PRJNA862376/PRJNA862376_silva-138-99-nb-classifier.qza",
-#   )
-# sample_data(physeq_PRJNA862376)  = sample_data(metadata)
-# 
-# sample_data(physeq_PRJNA862376)$read_count=sample_sums(physeq_PRJNA862376)
-# 
-# physeq_PRJNA862376 = tax_clean(physeq_PRJNA862376)
+#creating phyloseq objects for KJOH_proj04_Q17535
+metadata = read.delim("Wetsus_data/KJOH_proj04_Q17535/KJOH_proj04_Q17535_metadata.tsv", header=T, sep = "\t")
+colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
+metadata = sample_data(metadata)
+sample_names(metadata) = metadata$SampleID
+
+physeq_KJOH_proj04_Q17535 = qza_to_phyloseq(
+  features = "Wetsus_data/KJOH_proj04_Q17535/KJOH_16S_515F_926R_08052024_Q17535_full_KJOH_table.qza",
+  tree = "Wetsus_data/KJOH_proj04_Q17535/KJOH_16S_515F_926R_08052024_Q17535_full_KJOH_rooted-tree.qza",
+  taxonomy = "Wetsus_data/KJOH_proj04_Q17535/KJOH_16S_515F_926R_08052024_Q17535_full_KJOH_silva-138-99-nb-classifier.qza",
+  )
+sample_data(physeq_KJOH_proj04_Q17535)  = sample_data(metadata)
+
+sample_data(physeq_KJOH_proj04_Q17535)$read_count=sample_sums(physeq_KJOH_proj04_Q17535)
+
+physeq_KJOH_proj04_Q17535 = tax_clean(physeq_KJOH_proj04_Q17535)
+
+#creating phyloseq objects for KJOH_proj05_Q17536
+metadata = read.delim("Wetsus_data/KJOH_proj05_Q17536/KJOH_proj05_Q17536_metadata.tsv", header=T, sep = "\t")
+colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
+metadata = sample_data(metadata)
+sample_names(metadata) = metadata$SampleID
+
+physeq_KJOH_proj05_Q17536 = qza_to_phyloseq(
+  features = "Wetsus_data/KJOH_proj05_Q17536/KJOH_16S_515F_926R_08052024_Q17536_full_KJOH_table.qza",
+  tree = "Wetsus_data/KJOH_proj05_Q17536/KJOH_16S_515F_926R_08052024_Q17536_full_KJOH_rooted-tree.qza",
+  taxonomy = "Wetsus_data/KJOH_proj05_Q17536/KJOH_16S_515F_926R_08052024_Q17536_full_KJOH_silva-138-99-nb-classifier.qza",
+  )
+sample_data(physeq_KJOH_proj05_Q17536)  = sample_data(metadata)
+
+sample_data(physeq_KJOH_proj05_Q17536)$read_count=sample_sums(physeq_KJOH_proj05_Q17536)
+
+physeq_KJOH_proj05_Q17536 = tax_clean(physeq_KJOH_proj05_Q17536)
+
+#creating phyloseq objects for KJOH_proj06_Q17537
+metadata = read.delim("Wetsus_data/KJOH_proj06_Q17537/KJOH_proj06_Q17537_metadata.tsv", header=T, sep = "\t")
+colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
+metadata = sample_data(metadata)
+sample_names(metadata) = metadata$SampleID
+
+physeq_KJOH_proj06_Q17537 = qza_to_phyloseq(
+  features = "Wetsus_data/KJOH_proj06_Q17537/KJOH_16S_515F_926R_08052024_Q17537_full_KJOH_table.qza",
+  tree = "Wetsus_data/KJOH_proj06_Q17537/KJOH_16S_515F_926R_08052024_Q17537_full_KJOH_rooted-tree.qza",
+  taxonomy = "Wetsus_data/KJOH_proj06_Q17537/KJOH_16S_515F_926R_08052024_Q17537_full_KJOH_silva-138-99-nb-classifier.qza",
+  )
+sample_data(physeq_KJOH_proj06_Q17537)  = sample_data(metadata)
+
+sample_data(physeq_KJOH_proj06_Q17537)$read_count=sample_sums(physeq_KJOH_proj06_Q17537)
+
+physeq_KJOH_proj06_Q17537 = tax_clean(physeq_KJOH_proj06_Q17537)
+
+# External data
+#creating phyloseq objects for PRJEB34118
+metadata = read.delim("External_data/PRJEB34118/PRJEB34118_metadata.tsv", header=T, sep = "\t")
+colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
+metadata = sample_data(metadata)
+sample_names(metadata) = metadata$SampleID
+
+physeq_PRJEB34118 = qza_to_phyloseq(
+  features = "External_data/PRJEB34118/PRJEB34118_table.qza",
+  tree = "External_data/PRJEB34118/PRJEB34118_rooted-tree.qza",
+  taxonomy = "External_data/PRJEB34118/PRJEB34118_silva-138-99-nb-classifier.qza",
+  )
+sample_data(physeq_PRJEB34118)  = sample_data(metadata)
+
+sample_data(physeq_PRJEB34118)$read_count=sample_sums(physeq_PRJEB34118)
+
+physeq_PRJEB34118 = tax_clean(physeq_PRJEB34118)
+
+#creating phyloseq objects for PRJNA862376
+metadata = read.delim("External_data/PRJNA862376//PRJNA862376_metadata.tsv", header=T, sep = "\t")
+colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
+metadata = sample_data(metadata)
+sample_names(metadata) = metadata$SampleID
+
+physeq_PRJNA862376 = qza_to_phyloseq(
+  features = "External_data/PRJNA862376/PRJNA862376_table.qza",
+  tree = "External_data/PRJNA862376/PRJNA862376_rooted-tree.qza",
+  taxonomy = "External_data/PRJNA862376/PRJNA862376_silva-138-99-nb-classifier.qza",
+  )
+sample_data(physeq_PRJNA862376)  = sample_data(metadata)
+
+sample_data(physeq_PRJNA862376)$read_count=sample_sums(physeq_PRJNA862376)
+
+physeq_PRJNA862376 = tax_clean(physeq_PRJNA862376)
 ```
 
 ```{r bind data, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
@@ -482,116 +503,555 @@ YXIN_proj1_Q16712_prevalence =
   left_join(YXIN_proj1_Q16712, physeq_YXIN_proj1_Q16712_no_mock, by = "OTU") %>% 
   select(OTU, Sample, Abundance, prevalence, everything()) 
 
-# # External data
-# 
-# # PRJEB34118
-# PRJEB34118 = 
-#   physeq_PRJEB34118 %>% 
-#   transform_sample_counts(., fun = function(x) x/sum(x)*100) %>% 
-#   #prune_taxa(taxa_sums(.)>0.01, .) %>% # 
-#   psmelt() %>% 
-#   as_tibble() %>% 
-#   mutate(study = "PRJEB34118")
-# 
-# # filter mock out and at prevalence 
-# physeq_PRJEB34118_no_mock = 
-# physeq_PRJEB34118 %>% 
-#   subset_samples(., Sample_mock == "sample") %>% 
-#   prune_taxa(taxa_sums(.)>0, .) %>% 
-#   microbiome::prevalence() %>% 
-#   data.frame(prevalence = .) %>%
-#   tibble::rownames_to_column(var = "OTU") 
-# 
-# PRJEB34118_prevalence =
-#   left_join(PRJEB34118, physeq_PRJEB34118_no_mock, by = "OTU") %>% 
-#   select(OTU, Sample, Abundance, prevalence, everything()) 
-# 
-# # PRJEB36253
-# PRJEB36253 = 
-#   physeq_PRJEB36253 %>% 
-#   transform_sample_counts(., fun = function(x) x/sum(x)*100) %>% 
-#   #prune_taxa(taxa_sums(.)>0.01, .) %>% # 
-#   psmelt() %>% 
-#   as_tibble() %>% 
-#   mutate(study = "PRJEB36253")
-# 
-# # filter mock out and at prevalence 
-# physeq_PRJEB36253_no_mock = 
-# physeq_PRJEB36253 %>% 
-#   subset_samples(., Sample_mock == "sample") %>% 
-#   prune_taxa(taxa_sums(.)>0, .) %>% 
-#   microbiome::prevalence() %>% 
-#   data.frame(prevalence = .) %>%
-#   tibble::rownames_to_column(var = "OTU") 
-# 
-# PRJEB36253_prevalence =
-#   left_join(PRJEB36253, physeq_PRJEB36253_no_mock, by = "OTU") %>% 
-#   select(OTU, Sample, Abundance, prevalence, everything())
-# 
-# # PRJNA648321
-# PRJNA648321 = 
-#   physeq_PRJNA648321 %>% 
-#   transform_sample_counts(., fun = function(x) x/sum(x)*100) %>% 
-#   #prune_taxa(taxa_sums(.)>0.01, .) %>% # 
-#   psmelt() %>% 
-#   as_tibble() %>% 
-#   mutate(study = "PRJNA648321")
-# 
-# # filter mock out and at prevalence 
-# physeq_PRJNA648321_no_mock = 
-# physeq_PRJNA648321 %>% 
-#   subset_samples(., Sample_mock == "sample") %>% 
-#   prune_taxa(taxa_sums(.)>0, .) %>% 
-#   microbiome::prevalence() %>% 
-#   data.frame(prevalence = .) %>%
-#   tibble::rownames_to_column(var = "OTU") 
-# 
-# PRJNA648321_prevalence =
-#   left_join(PRJNA648321, physeq_PRJNA648321_no_mock, by = "OTU") %>% 
-#   select(OTU, Sample, Abundance, prevalence, everything())
-# 
-# # PRJNA862376
-# PRJNA862376 = 
-#   physeq_PRJNA862376 %>% 
-#   transform_sample_counts(., fun = function(x) x/sum(x)*100) %>% 
-#   #prune_taxa(taxa_sums(.)>0.01, .) %>% # 
-#   psmelt() %>% 
-#   as_tibble() %>% 
-#   mutate(study = "PRJNA862376")
-# 
-# # filter mock out and at prevalence 
-# physeq_PRJNA862376_no_mock = 
-# physeq_PRJNA862376 %>% 
-#   subset_samples(., Sample_mock == "sample") %>% 
-#   prune_taxa(taxa_sums(.)>0, .) %>% 
-#   microbiome::prevalence() %>% 
-#   data.frame(prevalence = .) %>%
-#   tibble::rownames_to_column(var = "OTU") 
-# 
-# PRJNA862376_prevalence =
-#   left_join(PRJNA862376, physeq_PRJNA862376_no_mock, by = "OTU") %>% 
-#   select(OTU, Sample, Abundance, prevalence, everything())
+# KJOH_proj04_Q17535
+KJOH_proj04_Q17535 =
+  physeq_KJOH_proj04_Q17535 %>%
+  transform_sample_counts(., fun = function(x) x/sum(x)*100) %>%
+  #prune_taxa(taxa_sums(.)>0.01, .) %>% #
+  psmelt() %>%
+  as_tibble() %>%
+  mutate(study = "KJOH_proj04_Q17535")
+
+# filter mock out and at prevalence
+physeq_KJOH_proj04_Q17535_no_mock =
+physeq_KJOH_proj04_Q17535 %>%
+  subset_samples(., Sample_mock == "sample") %>%
+  prune_taxa(taxa_sums(.)>0, .) %>%
+  microbiome::prevalence() %>%
+  data.frame(prevalence = .) %>%
+  tibble::rownames_to_column(var = "OTU")
+
+KJOH_proj04_Q17535_prevalence =
+  left_join(KJOH_proj04_Q17535, physeq_KJOH_proj04_Q17535_no_mock, by = "OTU") %>%
+  select(OTU, Sample, Abundance, prevalence, everything())
+
+# KJOH_proj05_Q17536
+KJOH_proj05_Q17536 =
+  physeq_KJOH_proj05_Q17536 %>%
+  transform_sample_counts(., fun = function(x) x/sum(x)*100) %>%
+  #prune_taxa(taxa_sums(.)>0.01, .) %>% #
+  psmelt() %>%
+  as_tibble() %>%
+  mutate(study = "KJOH_proj05_Q17536")
+
+# filter mock out and at prevalence 
+physeq_KJOH_proj05_Q17536_no_mock =
+physeq_KJOH_proj05_Q17536 %>%
+  subset_samples(., Sample_mock == "sample") %>%
+  prune_taxa(taxa_sums(.)>0, .) %>%
+  microbiome::prevalence() %>%
+  data.frame(prevalence = .) %>%
+  tibble::rownames_to_column(var = "OTU")
+
+KJOH_proj05_Q17536_prevalence =
+  left_join(KJOH_proj05_Q17536, physeq_KJOH_proj05_Q17536_no_mock, by = "OTU") %>%
+  select(OTU, Sample, Abundance, prevalence, everything())
+
+# KJOH_proj06_Q17537
+KJOH_proj06_Q17537 =
+  physeq_KJOH_proj06_Q17537 %>%
+  transform_sample_counts(., fun = function(x) x/sum(x)*100) %>%
+  #prune_taxa(taxa_sums(.)>0.01, .) %>% #
+  psmelt() %>%
+  as_tibble() %>%
+  mutate(study = "KJOH_proj06_Q17537")
+
+# filter mock out and at prevalence
+physeq_KJOH_proj06_Q17537_no_mock =
+physeq_KJOH_proj06_Q17537 %>%
+  subset_samples(., Sample_mock == "sample") %>%
+  prune_taxa(taxa_sums(.)>0, .) %>%
+  microbiome::prevalence() %>%
+  data.frame(prevalence = .) %>%
+  tibble::rownames_to_column(var = "OTU")
+
+KJOH_proj06_Q17537_prevalence =
+  left_join(KJOH_proj06_Q17537, physeq_KJOH_proj06_Q17537_no_mock, by = "OTU") %>%
+  select(OTU, Sample, Abundance, prevalence, everything())
+
+# External data
+
+# PRJEB34118
+PRJEB34118 =
+  physeq_PRJEB34118 %>%
+  transform_sample_counts(., fun = function(x) x/sum(x)*100) %>%
+  #prune_taxa(taxa_sums(.)>0.01, .) %>% #
+  psmelt() %>%
+  as_tibble() %>%
+  filter(!SampleID %in% c("ERR3494157", "ERR3494173", "ERR3494185", "ERR3494197")) %>%
+  select(-Sample_name) %>% 
+  mutate(study = "PRJEB34118")
+
+# filter mock out and at prevalence
+physeq_PRJEB34118_no_mock =
+physeq_PRJEB34118 %>%
+  subset_samples(., Sample_mock == "sample") %>%
+  prune_taxa(taxa_sums(.)>0, .) %>%
+  microbiome::prevalence() %>%
+  data.frame(prevalence = .) %>%
+  tibble::rownames_to_column(var = "OTU")
+
+PRJEB34118_prevalence =
+  left_join(PRJEB34118, physeq_PRJEB34118_no_mock, by = "OTU") %>%
+  select(OTU, Sample, Abundance, prevalence, everything())
+
+# PRJNA862376
+PRJNA862376 =
+  physeq_PRJNA862376 %>%
+  transform_sample_counts(., fun = function(x) x/sum(x)*100) %>%
+  #prune_taxa(taxa_sums(.)>0.01, .) %>% #
+  psmelt() %>%
+  as_tibble() %>%
+  mutate(study = "PRJNA862376")
+
+# filter mock out and at prevalence
+physeq_PRJNA862376_no_mock =
+physeq_PRJNA862376 %>%
+  subset_samples(., Sample_mock == "sample") %>%
+  prune_taxa(taxa_sums(.)>0, .) %>%
+  microbiome::prevalence() %>%
+  data.frame(prevalence = .) %>%
+  tibble::rownames_to_column(var = "OTU")
+
+PRJNA862376_prevalence =
+  left_join(PRJNA862376, physeq_PRJNA862376_no_mock, by = "OTU") %>%
+  select(OTU, Sample, Abundance, prevalence, everything())
 
 # List all studies 
 Inhouse_wetsus_2022_studies <- list(BKIS_proj1_Q16705_prevalence, OBER_proj3_Q15250_prevalence, OSOJ_proj3_Q16374_prevalence)
 bind_rows(Inhouse_wetsus_2022_studies)
 
-Inhouse_wetsus_2023_studies <- list(BKIS_proj1_Q16705_prevalence, OSOJ_proj4_Q17230_prevalence, OSOJ_proj5_Q17229_prevalence, SHSU_proj1_Q17228_prevalence, YXIN_proj1_Q16712_prevalence)
+Inhouse_wetsus_2023_studies <- list(BKIS_proj1_Q16705_prevalence, OSOJ_proj4_Q17230_prevalence, OSOJ_proj5_Q17229_prevalence, SHSU_proj1_Q17228_prevalence, YXIN_proj1_Q16712_prevalence, KJOH_proj04_Q17535_prevalence, KJOH_proj05_Q17536_prevalence, KJOH_proj06_Q17537_prevalence)
 bind_rows(Inhouse_wetsus_2023_studies)
 
 Zymo_log10_studies <- list(YLUO_projx_Q12374_prevalence)
 bind_rows(Zymo_log10_studies)
 
-Zymo_equil_studies <- list(OBER_proj3_Q15250_prevalence) # PRJNA862376_prevalence PRJEB34118_prevalence
+Zymo_equil_studies <- list(OBER_proj3_Q15250_prevalence, PRJNA862376_prevalence, PRJEB34118_prevalence)
 bind_rows(Zymo_equil_studies)
 
-all_studies <- list(BKIS_proj1_Q16705_prevalence, OBER_proj3_Q15250_prevalence, OSOJ_proj3_Q16374_prevalence, OSOJ_proj4_Q17230_prevalence, OSOJ_proj5_Q17229_prevalence, SHSU_proj1_Q17228_prevalence, YLUO_projx_Q12374_prevalence, YXIN_proj1_Q16712_prevalence)
+all_studies <- list(BKIS_proj1_Q16705_prevalence, OBER_proj3_Q15250_prevalence, OSOJ_proj3_Q16374_prevalence, OSOJ_proj4_Q17230_prevalence, OSOJ_proj5_Q17229_prevalence, SHSU_proj1_Q17228_prevalence, YLUO_projx_Q12374_prevalence, YXIN_proj1_Q16712_prevalence, PRJNA862376_prevalence, PRJEB34118_prevalence, KJOH_proj04_Q17535_prevalence, KJOH_proj05_Q17536_prevalence, KJOH_proj06_Q17537_prevalence)
+```
 
-# Inhouse_PRJNA648321 <- list(PRJNA648321_prevalence)
-# bind_rows(Inhouse_PRJNA648321)
+```{r subset mock communities, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+# Table of mock composition
+Zymo_log10 =
+  tibble(Genus = c("Listeria",
+                   "Pseudomonas",
+                   "Bacillus",
+                   "Saccharomyces",
+                   "Escherichia-Shigella",
+                   "Salmonella",
+                   "Lactobacillus",
+                   "Enterococcus",
+                   "Cryptococcus",
+                   "Staphylococcus"),
+         zymo_abund = c(
+                   95.9,
+                   2.8,
+                   1.2,
+                   0,
+                   0.069,
+                   0.07,
+                   0.012,
+                   0.00067,
+                   0,
+                   0.0001))
+
+Zymo_equil =
+  tibble(Genus = c("Pseudomonas", 
+                   "Escherichia-Shigella", 
+                   "Salmonella",
+                   "Lactobacillus", 
+                   "Enterococcus", 
+                   "Staphylococcus", 
+                   "Listeria", 
+                   "Bacillus", 
+                   "Saccharomyces", 
+                   "Cryptococcus"),
+         zymo_abund = c(
+                   4.2,
+                   10.1,
+                   10.4,
+                   18.4,
+                   9.9,
+                   15.5,
+                   14.1,
+                   17.4,
+                   0,
+                   0)) 
+
+Inhouse2022_correct =
+  tibble(Genus = c("Brevibacillus",
+                   "Bacillus",
+                   "Lysinibacillus",
+                   "Bordetella"),
+         Inhouse2022_abund = c(
+                   55.17,
+                   36.21,
+                   6.90,
+                   1.72))
+
+Inhouse2023 =
+  tibble(Genus = c("Brevibacillus",
+                   "Bacillus",
+                   "Lysinibacillus",
+                   "Sphingobium",
+                   "Streptomyces",
+                   "Burkholderia-Caballeronia-Paraburkholderia"),
+         Inhouse2023_abund = c(
+                   50.78,
+                   31.73,
+                   12.69,
+                   3.18,
+                   0.79,
+                   0.40))
+```
+
+```{r sample en mock namen, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+# filter names of mock samples
+mock_names_inhouse_wetsus_2022 = 
+  Inhouse_wetsus_2022_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(Sample_mock == "mock") %>%
+  distinct(Sample)
+  }) %>%
+  bind_rows()
+
+mock_names_inhouse_wetsus_2023 = 
+  Inhouse_wetsus_2023_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(Sample_mock == "mock") %>%
+  distinct(Sample)
+  }) %>%
+  bind_rows()
+
+mock_names_zymo_log10 = 
+  Zymo_log10_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(Sample_mock == "mock") %>%
+  distinct(Sample)
+  }) %>%
+  bind_rows()
+
+mock_names_zymo_equil = 
+  Zymo_equil_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(Sample_mock == "mock") %>%
+  distinct(Sample)
+  }) %>%
+  bind_rows()
+
+# filter sample names
+sample_names_inhouse_wetsus_2022 =
+  Inhouse_wetsus_2022_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(Sample_mock == "sample") %>%
+  distinct(Sample)
+  }) %>%
+  bind_rows()
+
+sample_names_inhouse_wetsus_2023 = 
+  Inhouse_wetsus_2023_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(Sample_mock == "sample") %>%
+  distinct(Sample)
+  }) %>%
+  bind_rows()
+
+sample_names_zymo_log10 = 
+  Zymo_log10_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(Sample_mock == "sample") %>%
+  distinct(Sample)
+  }) %>%
+  bind_rows()
+
+sample_names_zymo_equil = 
+  Zymo_equil_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(Sample_mock == "sample") %>%
+  distinct(Sample)
+  }) %>%
+  bind_rows()
+```
+
+```{r mock bar plot, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+# barplot for mock communities
+
+# inhouse_mock_2022
+mock_only_Inhouse_wetsus_2022_samples =
+  Inhouse_wetsus_2022_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(!Sample %in% c("MCZ", "MC23")) %>%
+  filter(Sample_mock == "mock") %>% 
+  mutate(Genus = ifelse(Genus %in% Inhouse2022_correct$Genus, Genus, "Other genera")) %>% 
+  mutate(Genus = factor(Genus, levels = c(setdiff(unique(Genus), "Other genera"), "Other genera")))
+  }) %>% 
+  bind_rows()
+
+# inhouse_mock_2023
+mock_only_Inhouse_wetsus_2023_samples =
+  Inhouse_wetsus_2023_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(!Sample %in% c("MCZ", "MC22")) %>%
+  filter(Sample_mock == "mock") %>% 
+  mutate(Genus = ifelse(Genus %in% Inhouse2023$Genus, Genus, "Other genera")) %>% 
+  mutate(Genus = factor(Genus, levels = c(setdiff(unique(Genus), "Other genera"), "Other genera")))
+  }) %>% 
+  bind_rows()
+
+# zymo_log10
+mock_only_zymo_log10_samples =
+  Zymo_log10_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(Sample_mock == "mock") %>% 
+  mutate(Genus = ifelse(Genus %in% Zymo_log10$Genus, Genus, "Other genera")) %>% 
+  mutate(Genus = factor(Genus, levels = c(setdiff(unique(Genus), "Other genera"), "Other genera")))
+  }) %>% 
+  bind_rows()
+
+# zymo_equil
+mock_only_zymo_equil_samples =
+  Zymo_equil_studies %>%
+  lapply(function(df) {
+    df %>%
+  filter(!Sample %in% c("MCL1", "MCL2")) %>%
+  filter(Sample_mock == "mock") %>% 
+  mutate(Genus = ifelse(Genus %in% Zymo_equil$Genus, Genus, "Other genera")) %>% 
+  mutate(Genus = factor(Genus, levels = c(setdiff(unique(Genus), "Other genera"), "Other genera")))
+  }) %>% 
+  bind_rows()
+
+# bind all mocks 
+all_mock_studies =
+  rbind(mock_only_Inhouse_wetsus_2022_samples, 
+        mock_only_Inhouse_wetsus_2023_samples, 
+        mock_only_zymo_log10_samples,
+        mock_only_zymo_equil_samples
+        ) %>% 
+  arrange(Source_mock) %>% 
+  mutate(Sample = factor(Sample, levels = unique(Sample))) %>% 
+  mutate(Genus = factor(Genus, levels = c(setdiff(levels(Genus), "Other genera"), "Other genera")))
+
+unique_genera <- levels(all_mock_studies$Genus)
+
+# Colors
+genus_colors <- scales::hue_pal()(length(unique_genera) - 1)
+names(genus_colors) <- unique_genera[unique_genera != "Other genera"]
+genus_colors["Other genera"] <- "grey"
+
+bar_plot_all_mock_studies =
+  all_mock_studies %>% 
+  ggplot(aes(x = Sample , y = Abundance, fill = Genus)) +
+  geom_bar(position= "stack", stat = "identity") +
+  scale_fill_manual(values = genus_colors) +
+  facet_grid(cols = vars(Source_mock),  scales = "free_x", space = "free_x") +
+  theme_minimal() +
+  labs(x = "Mock samples", y = "Abundance (%)", fill = "Genus") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+                                   axis.text.y = element_text(size = 14),
+                                   strip.text = element_text(size = 8),
+                                   legend.text = element_text(size = 15),
+                                   legend.title = element_text(size = 16))
+
+ggsave("figures/bar_plot_all_mock_studies.pdf", plot = bar_plot_all_mock_studies, width = 18, height = 10)
+ggsave("figures/bar_plot_all_mock_studies.jpg", plot = bar_plot_all_mock_studies, width = 18, height = 10)
+
+bar_plot_all_mock_studies
+
+Genus_abundance_all_mock_studies = 
+  all_mock_studies %>% 
+  group_by(Sample, Genus) %>%
+  summarize(total_abundance = sum(Abundance))
+#view(Genus_abundance_all_mock_studies)
+
+```
+
+```{r view genera in the mock}
+# view all genera in mock
+# mock_only_Inhouse_wetsus_2022_samples %>%
+#   filter(abund > 0) %>%
+#   select(Genus) %>%
+#   unique %>%
+#   view()
 # 
-# Inhouse_PRJEB36253 <- list(PRJEB36253_prevalence)
-# bind_rows(Inhouse_PRJEB36253)
+# Inhouse_wetsus_2022_studies %>%
+#   bind_rows() %>%
+#   filter(Abundance > 0) %>%
+#   filter(Sample_mock == "mock") %>%
+#   filter(Source_mock == "inhouse_wetsus_2022") %>%
+#   select(Genus, Abundance, everything()) %>%
+#   unique %>%
+#   view()
+# 
+# mock_only_zymo_log10_samples %>%
+#   filter(abund > 0) %>%
+#   select(Genus) %>%
+#   unique %>%
+#   view()
+# 
+# mock_only_zymo_equil_samples %>%
+#   filter(abund > 0) %>%
+#   select(Genus) %>%
+#   unique %>%
+#   view()
+
+# Zymo_equil_studies %>%
+#   bind_rows() %>%
+#   filter(Sample_mock == "mock") %>%
+#   select(Abundance, Genus, OTU, study) %>%
+#   filter(Abundance > 0) %>%
+#   unique %>%
+#   view()
+```
+
+```{r abudance theoretical vs measured, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+# inhouse wetsus 2022
+table_measured_vs_theoretical_inhouse_wetsus_2022 =
+  mock_only_Inhouse_wetsus_2022_samples %>%
+  select(Sample, Abundance, Source_mock, Genus) %>%
+  group_by(Sample, Genus) %>%
+  summarise(sum_abund_inhouse_wetsus_2022 = sum(Abundance), 
+            .groups = 'drop') %>%
+  inner_join(Inhouse2022_correct, by = ("Genus"))
+
+measured_vs_theoretical_inhouse_wetsus_2022 =
+  table_measured_vs_theoretical_inhouse_wetsus_2022 %>% 
+  ggplot(aes(x = Inhouse2022_abund, 
+             y = sum_abund_inhouse_wetsus_2022)) +
+  geom_point(aes(color = Sample, alpha = Genus), alpha = 0.5) +
+  geom_smooth(method = "lm", se = F, aes(group = Sample, color = Sample), alpha = 0.5) +
+  geom_mark_ellipse(aes(group = Genus, label = Genus), label.fontsize = 9, 
+                    expand = unit(3, "mm")) +
+  labs(title = "Inhouse wetsus 2022",
+       x = "Theoretical Abundance",
+       y = "Measured Abundance") +
+  theme_minimal() +
+  theme(legend.position = "right") +
+  ylim(0, NA)
+
+
+ggsave("figures/measured_vs_theoretical_inhouse_wetsus_2022.pdf", plot = measured_vs_theoretical_inhouse_wetsus_2022, width = 8, height = 5)
+ggsave("figures/measured_vs_theoretical_inhouse_wetsus_2022.jpg", plot = measured_vs_theoretical_inhouse_wetsus_2022, width = 8, height = 5)
+
+measured_vs_theoretical_inhouse_wetsus_2022
+
+abundance_difference_inhouse_wetsus_2022 =
+  table_measured_vs_theoretical_inhouse_wetsus_2022$mean_abund_inhouse_wetsus_2022 -     table_measured_vs_theoretical_inhouse_wetsus_2022$Inhouse2022_abund
+
+#t_test_result <- t.test(abundance_difference_inhouse_wetsus_2022)
+
+# inhouse wetsus 2023
+table_measured_vs_theoretical_inhouse_wetsus_2023 =
+  mock_only_Inhouse_wetsus_2023_samples %>%
+  select(Sample, Abundance, Source_mock, Genus) %>%
+  group_by(Sample, Genus) %>%
+  summarise(sum_abund_inhouse_wetsus_2023 = sum(Abundance), 
+            .groups = 'drop') %>%
+  inner_join(Inhouse2023, by = ("Genus"))
+
+measured_vs_theoretical_inhouse_wetsus_2023 =
+  table_measured_vs_theoretical_inhouse_wetsus_2023 %>% 
+  ggplot(aes(x = Inhouse2023_abund, 
+             y = sum_abund_inhouse_wetsus_2023)) +
+  geom_point(aes(color = Sample, alpha = Genus), alpha = 0.5) +
+  geom_mark_ellipse(aes(group = Genus, label = Genus), label.fontsize = 9, 
+                    expand = unit(3, "mm")) +
+  labs(title = "Inhouse wetsus 2023",
+       x = "Theoretical Abundance",
+       y = "Measured Abundance") +
+  theme_minimal() +
+  theme(legend.position = "right") +
+  ylim(-5, NA) +
+  geom_smooth(method = "lm", se = FALSE, aes(group = Sample, color = Sample), alpha = 0.5)
+
+ggsave("figures/measured_vs_theoretical_inhouse_wetsus_2023.pdf", plot = measured_vs_theoretical_inhouse_wetsus_2023, width = 8, height = 5)
+ggsave("figures/measured_vs_theoretical_inhouse_wetsus_2023.jpg", plot = measured_vs_theoretical_inhouse_wetsus_2023, width = 8, height = 5)
+
+measured_vs_theoretical_inhouse_wetsus_2023
+
+abundance_difference_inhouse_wetsus_2023 =
+  table_measured_vs_theoretical_inhouse_wetsus_2023$mean_abund_inhouse_wetsus_2023 -     table_measured_vs_theoretical_inhouse_wetsus_2023$Inhouse2023_abund
+
+# zymo_log10
+table_measured_vs_theoretical_zymo_log10 =
+  mock_only_zymo_log10_samples %>%
+  select(Sample, Abundance, Source_mock, Genus) %>%
+  group_by(Sample, Genus) %>%
+  summarise(sum_abund_zymo_log10 = sum(Abundance), 
+            .groups = 'drop') %>%
+  inner_join(Zymo_log10, by = ("Genus"))
+
+measured_vs_theoretical_zumo_log10 =
+  table_measured_vs_theoretical_zymo_log10 %>% 
+  ggplot(aes(x = zymo_abund,
+             y = sum_abund_zymo_log10+0.00001)) +
+  geom_point(aes(color = Sample, alpha = Genus), alpha = 0.5) +
+  scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = scales::trans_format("log10", scales::math_format(10^.x)),
+                limits = c(0.00001, 100)) +
+  scale_x_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = scales::trans_format("log10", scales::math_format(10^.x)),
+                limits = c(0.00001, 100)) +
+  geom_mark_ellipse(aes(group = Genus, label = Genus), label.fontsize = 9, 
+                    expand = unit(3, "mm")) +
+  labs(title = "Zymo_log10",
+       x = "Theoretical Abundance",
+       y = "Measured Abundance") +
+  theme_minimal() +
+  theme(legend.position = "right") +
+  geom_smooth(method = "lm", se = FALSE, aes(group = Sample, color = Sample), alpha = 0.5)
+  
+ggsave("figures/measured_vs_theoretical_zumo_log10.pdf", plot = measured_vs_theoretical_zumo_log10, width = 8, height = 5)
+ggsave("figures/measured_vs_theoretical_zumo_log10.jpg", plot = measured_vs_theoretical_zumo_log10, width = 8, height = 5)
+
+measured_vs_theoretical_zumo_log10
+
+abundance_difference_zymo_log10 =
+  table_measured_vs_theoretical_zymo_log10$mean_abund_zymo_log10 - table_measured_vs_theoretical_zymo_log10$zymo_abund
+
+# zymo_equil
+table_measured_vs_theoretical_zymo_equil =
+  mock_only_zymo_equil_samples %>%
+  select(Sample, Abundance, Source_mock, Genus) %>%
+  group_by(Sample, Genus) %>%
+  summarise(sum_abund_zymo_equil = sum(Abundance), 
+            .groups = 'drop') %>%
+  inner_join(Zymo_equil, by = ("Genus"))
+
+measured_vs_theoretical_zymo_equil =
+  table_measured_vs_theoretical_zymo_equil %>% 
+  ggplot(aes(x = zymo_abund,
+             y = sum_abund_zymo_equil)) +
+  geom_mark_ellipse(aes(group = Genus, label = Genus), 
+                    label.fontsize = 9, 
+                    expand = unit(2, "mm")) +
+  geom_smooth(method = "lm", se = F, aes(group = Sample, color = Sample), alpha = 0.5) +
+  geom_point(aes(color = Sample, alpha = Genus), alpha = 0.5) +
+  labs(title = "Zymo_equil",
+       x = "Theoretical Abundance",
+       y = "Measured Abundance") +
+  theme_minimal() +
+  theme(legend.position = "right") +
+  ylim(-5, NA) +
+  xlim(0, 20)
+
+ggsave("figures/measured_vs_theoretical_zymo_equil.pdf", plot = measured_vs_theoretical_zymo_equil, width = 8, height = 5)
+ggsave("figures/measured_vs_theoretical_zymo_equil.jpg", plot = measured_vs_theoretical_zymo_equil, width = 8, height = 5)
+
+measured_vs_theoretical_zymo_equil
 ```
 
 ```{r Prevalence berekenen, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
@@ -617,6 +1077,20 @@ all_studies_corrected =
   arrange(study, desc(abund))
   })
 
+all_studies_mock_corrected =
+  all_studies %>% 
+  lapply(function(df) {
+    df %>%
+  filter(Sample_mock == "mock") %>% 
+  group_by(Sample, Genus, study, OTU) %>%   
+  summarise(abund = sum(Abundance),
+            readcount = sum(read_count),
+            dnaconc = mean(DNA_Concentration),
+            .groups = "drop") %>% 
+  group_by(study) %>% 
+  arrange(study, desc(abund))
+  })
+
 # calculate mean, median and max abundace 
 all_studies_table =
   all_studies_corrected %>% 
@@ -631,6 +1105,40 @@ all_studies_table =
   arrange(desc(mean_abund))
   }) %>% 
   bind_rows()
+
+# calculate mean, median and max sample dna concentration 
+all_studies_table_dnaconc_sample =
+  all_studies_corrected %>% 
+  lapply(function(df) {
+    df %>%
+  select(study, Sample, dnaconc) %>% 
+  group_by(study) %>% 
+  summarise(mean_dnaconc = mean(dnaconc),
+            median_dnaconc = median(dnaconc),
+            max_dnaconc = max(dnaconc),
+            .groups = "drop") %>% 
+  arrange(desc(mean_dnaconc))
+  }) %>% 
+  bind_rows() %>% 
+  mutate(sample_mock = "sample") %>% 
+  pivot_longer(cols = c(-study, -sample_mock), names_to = "dna_char", values_to = "dna_value")
+
+# calculate mean, median and max mock dna concentration 
+all_studies_table_dnaconc_mock =
+  all_studies_mock_corrected %>% 
+  lapply(function(df) {
+    df %>%
+  select(study, Sample, dnaconc) %>% 
+  group_by(study) %>% 
+  summarise(mean_dnaconc = mean(dnaconc),
+            median_dnaconc = median(dnaconc),
+            max_dnaconc = max(dnaconc),
+            .groups = "drop") %>% 
+  arrange(desc(mean_dnaconc))
+  }) %>% 
+  bind_rows() %>% 
+  mutate(sample_mock = "mock") %>% 
+  pivot_longer(cols = c(-study, -sample_mock), names_to = "dna_char", values_to = "dna_value")
 
 # Filter the mock samples from the studies
 mock_only_inhouse_2022_BKIS_proj1_Q16705 =
@@ -747,653 +1255,250 @@ mock_only_YXIN_proj1_Q16712 =
   inner_join(., all_studies_table, by = c("study", "OTU")) %>% 
   pivot_longer(cols = c(prevalence, mean_abund, median_abund, max_abund),names_to = "sample_char", values_to = "value")
 
-# mock_only_PRJEB34118 =
-#   all_studies %>% 
-#   bind_rows() %>%
-#   filter(study == "PRJEB34118") %>% 
-#   filter(Sample_mock == "mock") %>%
-#   filter(Sample != "ERR3494197") %>% 
-#   filter(!(Genus %in% Zymo_equil$Genus)) %>% 
-#   arrange(desc(Abundance)) %>% 
-#   select(study, OTU, Abundance, prevalence) %>% 
-#   inner_join(., all_studies_table, by = c("study", "OTU")) %>% 
-#   pivot_longer(cols = c(prevalence, mean_abund, median_abund, max_abund),names_to = "sample_char", values_to = "value")
-# 
-# mock_only_PRJEB36253 =
-#   all_studies %>% 
-#   bind_rows() %>%
-#   filter(study == "PRJEB36253") %>% 
-#   filter(Sample_mock == "mock") %>%
-#   filter(!Sample %in% c("?", "?")) %>% 
-#   filter(!(Genus %in% Inhouse_PRJEB36253$Genus)) %>% 
-#   arrange(desc(Abundance)) %>% 
-#   select(study, OTU, Abundance, prevalence) %>% 
-#   inner_join(., all_studies_table, by = c("study", "OTU")) %>% 
-#   pivot_longer(cols = c(prevalence, mean_abund, median_abund, max_abund),names_to = "sample_char", values_to = "value")
-# 
-# mock_only_PRJNA648321 =
-#   all_studies %>% 
-#   bind_rows() %>%
-#   filter(study == "PRJNA648321") %>% 
-#   filter(Sample_mock == "mock") %>%
-#   filter(!(Genus %in% Inhouse_PRJNA648321$Genus)) %>% 
-#   arrange(desc(Abundance)) %>% 
-#   select(study, OTU, Abundance, prevalence) %>% 
-#   inner_join(., all_studies_table, by = c("study", "OTU")) %>% 
-#   pivot_longer(cols = c(prevalence, mean_abund, median_abund, max_abund),names_to = "sample_char", values_to = "value")
-# 
-# mock_only_PRJNA862376 =
-#   all_studies %>% 
-#   bind_rows() %>%
-#   filter(study == "PRJNA862376") %>% 
-#   filter(Sample_mock == "mock") %>%
-#   filter(!(Genus %in% Zymo_equil$Genus)) %>% 
-#   arrange(desc(Abundance)) %>% 
-#   select(study, OTU, Abundance, prevalence) %>% 
-#   inner_join(., all_studies_table, by = c("study", "OTU")) %>% 
-#   pivot_longer(cols = c(prevalence, mean_abund, median_abund, max_abund),names_to = "sample_char", values_to = "value")
+mock_only_KJOH_proj04_Q17535 =
+  all_studies %>% 
+  bind_rows() %>%
+  filter(study == "KJOH_proj04_Q17535") %>% 
+  filter(Sample_mock == "mock") %>%
+  filter(!(Genus %in% Inhouse2023$Genus)) %>% 
+  arrange(desc(Abundance)) %>% 
+  select(study, OTU, Abundance, prevalence) %>% 
+  inner_join(., all_studies_table, by = c("study", "OTU")) %>% 
+  pivot_longer(cols = c(prevalence, mean_abund, median_abund, max_abund),names_to = "sample_char", values_to = "value")
+
+mock_only_KJOH_proj05_Q17536 =
+  all_studies %>% 
+  bind_rows() %>%
+  filter(study == "KJOH_proj05_Q17536") %>% 
+  filter(Sample_mock == "mock") %>%
+  filter(!(Genus %in% Inhouse2023$Genus)) %>% 
+  arrange(desc(Abundance)) %>% 
+  select(study, OTU, Abundance, prevalence) %>% 
+  inner_join(., all_studies_table, by = c("study", "OTU")) %>% 
+  pivot_longer(cols = c(prevalence, mean_abund, median_abund, max_abund),names_to = "sample_char", values_to = "value")
+
+mock_only_KJOH_proj06_Q17537 =
+  all_studies %>% 
+  bind_rows() %>%
+  filter(study == "KJOH_proj06_Q17537") %>% 
+  filter(Sample_mock == "mock") %>%
+  filter(!(Genus %in% Inhouse2023$Genus)) %>% 
+  arrange(desc(Abundance)) %>% 
+  select(study, OTU, Abundance, prevalence) %>% 
+  inner_join(., all_studies_table, by = c("study", "OTU")) %>% 
+  pivot_longer(cols = c(prevalence, mean_abund, median_abund, max_abund),names_to = "sample_char", values_to = "value")
+
+mock_only_PRJEB34118 =
+  all_studies %>%
+  bind_rows() %>%
+  filter(study == "PRJEB34118") %>%
+  filter(Sample_mock == "mock") %>%
+  filter(!(Genus %in% Zymo_equil$Genus)) %>%
+  arrange(desc(Abundance)) %>%
+  select(study, OTU, Abundance, prevalence) %>%
+  inner_join(., all_studies_table, by = c("study", "OTU")) %>%
+  pivot_longer(cols = c(prevalence, mean_abund, median_abund, max_abund),names_to = "sample_char", values_to = "value")
+
+mock_only_PRJNA862376 =
+  all_studies %>%
+  bind_rows() %>%
+  filter(study == "PRJNA862376") %>%
+  filter(Sample_mock == "mock") %>%
+  filter(!(Genus %in% Zymo_equil$Genus)) %>%
+  arrange(desc(Abundance)) %>%
+  select(study, OTU, Abundance, prevalence) %>%
+  inner_join(., all_studies_table, by = c("study", "OTU")) %>%
+  pivot_longer(cols = c(prevalence, mean_abund, median_abund, max_abund),names_to = "sample_char", values_to = "value")
 
 # List all studies together
 all_studies_list =
-  list(mock_only_inhouse_2022_BKIS_proj1_Q16705, mock_only_inhouse_2023_BKIS_proj1_Q16705, mock_only_inhouse_2022_OBER_proj3_Q15250, mock_only_zymo_OBER_proj3_Q15250, mock_only_OSOJ_proj3_Q16374, mock_only_OSOJ_proj4_Q17230, mock_only_OSOJ_proj5_Q17229, mock_only_SHSU_proj1_Q17228, mock_only_YLUO_projx_Q12374, mock_only_YXIN_proj1_Q16712) %>% 
+  list(mock_only_inhouse_2022_BKIS_proj1_Q16705, mock_only_inhouse_2023_BKIS_proj1_Q16705,
+       mock_only_inhouse_2022_OBER_proj3_Q15250, mock_only_zymo_OBER_proj3_Q15250, mock_only_OSOJ_proj3_Q16374,
+       mock_only_OSOJ_proj4_Q17230, mock_only_OSOJ_proj5_Q17229, mock_only_SHSU_proj1_Q17228, mock_only_YLUO_projx_Q12374,
+       mock_only_YXIN_proj1_Q16712, mock_only_PRJEB34118, mock_only_PRJNA862376, mock_only_KJOH_proj04_Q17535,
+       mock_only_KJOH_proj05_Q17536, mock_only_KJOH_proj06_Q17537) %>% 
   bind_rows()
+```
 
-# plot prevalaence 
-all_studies_plot_prevalence =
-  all_studies_list %>% 
+```{r Prevalence plotten, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=5}
+# plot prevalaence; median 
+all_studies_plot_prevalence_median_prevalence =
+  all_studies_list %>%
+  filter(sample_char %in% c("prevalence", "median_abund")) %>% 
   ggplot(aes(x=value, y=Abundance, shape = sample_char)) +
   #geom_point(aes(color = study)) +
   ylim(0, 1.5) +
-  stat_smooth(aes(group = study, color = study), method = "lm", se = TRUE) +
-  facet_wrap(~sample_char, nrow = 2, ncol = 4, scales = "free")
+  stat_smooth(aes(group = study, color = study), method = "lm", se = T) +
+  facet_wrap(~sample_char, nrow = 2, ncol = 4, scales = "free") +
+  labs(y="Percentage mock OTU in sample")
 
-ggsave("figures/plot_prevalence.pdf", plot = all_studies_plot_prevalence, width = 6, height = 4)
-ggsave("figures/plot_prevalence.jpg", plot = all_studies_plot_prevalence, width = 6, height = 4)
+ggsave("figures/prevalence_median_prevalence.pdf", plot = all_studies_plot_prevalence_median_prevalence, width = 9, height = 5)
+ggsave("figures/prevalence_median_prevalence.jpg", plot = all_studies_plot_prevalence_median_prevalence, width = 9, height = 5)
+
+all_studies_plot_prevalence_median_prevalence
+
+# plot prevalaence 
+all_studies_plot_previalence =
+  all_studies_list %>% 
+  ggplot(aes(x=value, y=Abundance, shape = sample_char)) +
+  #geom_point(aes(color = study), size = 1.1, alpha = 0.7) +
+  ylim(0, 1.5) +
+  stat_smooth(aes(group = study, color = study), method = "lm", se = T) +
+  facet_wrap(~sample_char, nrow = 2, ncol = 4, scales = "free") +
+  labs(y="Percentage Sample OTU in mock community")
+
+ggsave("figures/prevalence.pdf", plot = all_studies_plot_prevalence, width = 9, height = 5)
+ggsave("figures/prevalence.jpg", plot = all_studies_plot_prevalence, width = 9, height = 5)
 
 all_studies_plot_prevalence
 ```
 
-```{r sample en mock namen, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# filter names of mock samples
-mock_names_inhouse_wetsus_2022 = 
-  Inhouse_wetsus_2022_studies %>%
-  lapply(function(df) {
-    df %>%
-  filter(Sample_mock == "mock") %>%
-  distinct(Sample)
-  }) %>%
-  bind_rows()
+```{r prevalence statstiek}
+# p value 
+# overall linear regression test (Study random variable)
+statistic_all_studies =
+  all_studies_list %>% 
+  filter(sample_char == "median_abund") %>% 
+  with(lm(Abundance ~ value * study))
 
-mock_names_inhouse_wetsus_2023 = 
-  Inhouse_wetsus_2023_studies %>%
-  lapply(function(df) {
-    df %>%
-  filter(Sample_mock == "mock") %>%
-  distinct(Sample)
-  }) %>%
-  bind_rows()
+# anova
+anova(statistic_all_studies)
 
-mock_names_zymo_log10 = 
-  Zymo_log10_studies %>%
-  lapply(function(df) {
-    df %>%
-  filter(Sample_mock == "mock") %>%
-  distinct(Sample)
-  }) %>%
-  bind_rows()
+# overall linear regression test (Study random variable)
+statistic_all_studies_2 =
+  all_studies_list %>% 
+  filter(sample_char == "prevalence") %>% 
+  with(lm(Abundance ~ value * study))
 
-mock_names_zymo_equil = 
-  Zymo_equil_studies %>%
-  lapply(function(df) {
-    df %>%
-  filter(Sample_mock == "mock") %>%
-  distinct(Sample)
-  }) %>%
-  bind_rows()
+# anova
+anova(statistic_all_studies_2)
 
-# filter sample names
-sample_names_inhouse_wetsus_2022 =
-  Inhouse_wetsus_2022_studies %>%
-  lapply(function(df) {
-    df %>%
-  filter(Sample_mock == "sample") %>%
-  distinct(Sample)
-  }) %>%
-  bind_rows()
+#significant interaction 
 
-sample_names_inhouse_wetsus_2023 = 
-  Inhouse_wetsus_2023_studies %>%
-  lapply(function(df) {
-    df %>%
-  filter(Sample_mock == "sample") %>%
-  distinct(Sample)
-  }) %>%
-  bind_rows()
+# pairwise comparison of slopes among sample characters
+emmeans::emtrends(statistic_all_studies, pairwise ~ study, var = "value")
 
-sample_names_zymo_log10 = 
-  Zymo_log10_studies %>%
-  lapply(function(df) {
-    df %>%
-  filter(Sample_mock == "sample") %>%
-  distinct(Sample)
-  }) %>%
-  bind_rows()
-
-sample_names_zymo_equil = 
-  Zymo_equil_studies %>%
-  lapply(function(df) {
-    df %>%
-  filter(Sample_mock == "sample") %>%
-  distinct(Sample)
-  }) %>%
-  bind_rows()
+# notatie = (anova: F12,56776 = 5255.74, p < 10^-15)
 ```
 
-```{r collors, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# Table of all the different bacteria
-Inhouse_wetsus_bacteria <- c("Brevibacillus", "Bacillus", "Lysinibacillus", "Bordetella", "Sphingobium", 
-                             "Streptomyces", "Burkholderia-Caballeronia-Paraburkholderia")
 
-Zymo_bacteria <- c("Listeria", "Pseudomonas", "Bacillus", "Escherichia-Shigella", 
-                   "Salmonella", "Lactobacillus", "Enterococcus", "Staphylococcus")
+```{r contaminant slopes, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+lm_sample_contaminants = 
+  all_studies_list %>% 
+  with(lm(Abundance~study*sample_char*value)) 
 
-num_inhouse_wetsus<- length(Inhouse_wetsus_bacteria)
+anova(lm_sample_contaminants)
 
-num_zymo<- length(Zymo_bacteria)
+trends = 
+  emmeans::emtrends(lm_sample_contaminants, ~study*sample_char, var = "value") %>% 
+    as_tibble() %>% 
+    filter(lower.CL > 0)
 
-inhouse_wetsus_colors <- brewer.pal(num_inhouse_wetsus, "Paired")
-zymo_colors <- brewer.pal(num_zymo, "Paired")
+# calculate differences
+abund_dna_char = 
+bind_rows(all_studies_table_dnaconc_mock, all_studies_table_dnaconc_sample) %>% 
+  pivot_wider(names_from = sample_mock, values_from = dna_value) %>% 
+  mutate(dna_char_ratio = mock/sample,
+         dna_char_diff = mock - sample) %>% 
+  inner_join(., trends, by = "study", relationship = "many-to-many")
 
-color_mapping <- c(setNames(inhouse_wetsus_colors, Inhouse_wetsus_bacteria), 
-                   setNames(zymo_colors, Zymo_bacteria), 
-                   "Other genus" = "grey")
+ratio_abund_dna_char_plot_prevalence_median =
+  abund_dna_char %>% 
+  filter(dna_char == "median_dnaconc") %>% 
+  ggplot(aes(x = dna_char_ratio, y = value.trend)) +
+  geom_point(aes(color = dna_char, shape = sample_char)) +
+  geom_smooth(method="lm", se=T) +
+  scale_x_log10() +
+  labs(x = "Ratio DNA concentration (mock/sample)", y = "trend") +
+  facet_grid(rows = vars(dna_char), cols = vars(sample_char))
+
+ggsave("figures/ratio_abund_dna_char_plot_prevalence_median.pdf", 
+       plot = ratio_abund_dna_char_plot_prevalence_median, width = 9, height = 5)
+ggsave("figures/ratio_abund_dna_char_plot_prevalence_median.jpg", 
+       plot = ratio_abund_dna_char_plot_prevalence_median, width = 9, height = 5)
+
+ratio_abund_dna_char_plot_prevalence_median
+
+diff_abund_dna_char_plot_prevalence_median =
+  abund_dna_char %>%
+  filter(dna_char == "median_dnaconc") %>% 
+  ggplot(aes(x = dna_char_diff, y = value.trend)) +
+  geom_point(aes(color = dna_char, shape = sample_char)) +
+  geom_smooth(method="lm", se=T) +
+  labs(x = "Difference DNA concentration (mock-sample) (ng/µl)", y = "trend") +
+  facet_grid(rows = vars(dna_char), cols = vars(sample_char))
+
+ggsave("figures/diff_abund_dna_char_plot_prevalence_median.pdf", 
+       plot = diff_abund_dna_char_plot_prevalence_median, width = 9, height = 5)
+ggsave("figures/diff_abund_dna_char_plot_prevalence_median.jpg",
+       plot = diff_abund_dna_char_plot_prevalence_median, width = 9, height = 5)
+
+diff_abund_dna_char_plot_prevalence_median
+
+ratio_abund_dna_char_plot =
+  abund_dna_char %>% 
+  ggplot(aes(x = dna_char_ratio, y = value.trend)) +
+  geom_point(aes(color = dna_char, shape = sample_char)) +
+  geom_smooth(method="lm", se=T) +
+  scale_x_log10() +
+  labs(x = "Ratio DNA concentration (mock/sample)", y = "trend") +
+  facet_grid(rows = vars(dna_char), cols = vars(sample_char))
+
+ggsave("figures/ratio_abund_dna_char_plot.pdf", plot = ratio_abund_dna_char_plot, width = 9, height = 5)
+ggsave("figures/ratio_abund_dna_char_plot.jpg", plot = ratio_abund_dna_char_plot, width = 9, height = 5)
+
+ratio_abund_dna_char_plot
+
+diff_abund_dna_char_plot =
+  abund_dna_char %>% 
+  ggplot(aes(x = dna_char_diff, y = value.trend)) +
+  geom_point(aes(color = dna_char, shape = sample_char)) +
+  geom_smooth(method="lm", se=T) +
+  labs(x = "Difference DNA concentration (mock-sample) (ng/µl)", y = "trend") +
+  facet_grid(rows = vars(dna_char), cols = vars(sample_char))
+
+ggsave("figures/diff_abund_dna_char_plot.pdf", plot = diff_abund_dna_char_plot, width = 9, height = 5)
+ggsave("figures/diff_abund_dna_char_plot.jpg", plot = diff_abund_dna_char_plot, width = 9, height = 5)
+
+diff_abund_dna_char_plot
+
 ```
 
-```{r mock bar plot, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# barplot for mock communities
+```{r statstiek contaminat slope}
+# p value dna ratio
+abund_dna_char_ratio =
+abund_dna_char %>% 
+  mutate(log_dna_char_ratio = log10(dna_char_ratio)) 
 
-# inhouse_mock_2022
-mock_only_Inhouse_wetsus_2022_samples =
-  Inhouse_wetsus_2022_studies %>%
-  lapply(function(df) {
-    df %>%
-  filter(Sample_mock == "mock") %>%
-  select(OTU, Sample, everything()) %>% 
-  mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-  group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-  summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration), .groups = "drop") %>% 
-  distinct() %>% 
-  group_by(Sample, Genus) %>%   
-  summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            .groups = "drop") %>% 
-  arrange(-abund)
-  }) %>% 
-  bind_rows()
+# test interactions between type of abundance measure and DNA concentration difference or ratio
+abund_dna_char_ratio_2 =
+  abund_dna_char_ratio %>% 
+  filter(dna_char == "median_dnaconc") %>% 
+  with(lm(value.trend ~ log_dna_char_ratio * sample_char))
 
-Inhouse_wetsus_2022_mock =
-  c("Serratia", "Massilia", "Brevibacillus", "Bacillus", "Weizmannia", "Lysinibacillus", "Peribacillus", "Bordetella")
+anova(abund_dna_char_ratio_2)
 
-mock_only_Inhouse_wetsus_2022_samples_2 = 
-  mock_only_Inhouse_wetsus_2022_samples %>% 
-  filter(!Sample %in% c("MCZ", "MC23")) %>% 
-  mutate(Genus = ifelse(Genus %in% Inhouse_wetsus_2022_mock, Genus, "Other genus")) %>% 
-  mutate(Genus = factor(Genus, levels = c(setdiff(unique(Genus), "Other genus"), "Other genus")))
 
-bar_plot_inhouse_wetsus_2022 =
-  ggplot(mock_only_Inhouse_wetsus_2022_samples_2, aes(x = Sample , y = abund, fill = Genus)) +
-  geom_bar(position= "stack", stat = "identity") +
-  scale_fill_manual(values = color_mapping) +
-  theme_minimal() +
-  labs(title = "barplot inhouse_wetsus_2022 mock communities", x = "Sample", y = "Abundantie (%)", fill = "Genus")
+# p value dna diff 
+# overall linear regression test (Genus random variable)
+abund_dna_char_diff =
+  abund_dna_char %>% 
+  filter(dna_char == "median_dnaconc") %>% 
+  with(lm(value.trend ~ dna_char_diff * sample_char))
 
-ggsave("figures/bar_plot_inhouse_wetsus_2022.pdf", plot = bar_plot_inhouse_wetsus_2022, width = 6, height = 4)
-ggsave("figures/bar_plot_inhouse_wetsus_2022.jpg", plot = bar_plot_inhouse_wetsus_2022, width = 6, height = 4)
+# anova
+anova(abund_dna_char_diff)
 
-bar_plot_inhouse_wetsus_2022
+#significant interaction 
 
-Genus_abundance_inhouse_wetsus_2022 = 
-  mock_only_Inhouse_wetsus_2022_samples_2 %>% 
-  group_by(Sample, Genus) %>%
-  summarize(total_abundance = sum(abund))
-#print(Genus_abundance_inhouse_wetsus_2022, n = nrow(Genus_abundance_inhouse_wetsus_2022))
-
-# Inhouse_mock_2023
-mock_only_Inhouse_wetsus_2023_samples =
-Inhouse_wetsus_2023_studies %>%
-  lapply(function(df) {
-    df %>% 
-  filter(Sample_mock == "mock") %>%
-  select(OTU, Sample, everything()) %>% 
-  mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-  group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-  summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration), .groups = "drop") %>% 
-  distinct() %>% 
-  group_by(Sample, Genus) %>%   
-  summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            .groups = "drop") %>% 
-  arrange(-abund)
-  }) %>% 
-  bind_rows()
-
-Inhouse_wetsus_2023_mock =
-  c("Brevibacillus", "Weizmannia", "Lysinibacillus", "Bacillus", "Sphingobium", "Serratia", "Streptomyces", "Burkholderia")
-
-mock_only_Inhouse_wetsus_2023_samples_2 = 
-  mock_only_Inhouse_wetsus_2023_samples %>% 
-  filter(!Sample %in% c("MC22")) %>% 
-  mutate(Genus = ifelse(Genus %in% Inhouse_wetsus_2023_mock, Genus, "Other genus")) %>% 
-  mutate(Genus = factor(Genus, levels = c(setdiff(unique(Genus), "Other genus"), "Other genus")))
-
-bar_plot_inhouse_wetsus_2023 =
-  ggplot(mock_only_Inhouse_wetsus_2023_samples_2, aes(x = Sample , y = abund, fill = Genus)) +
-  geom_bar(position= "stack", stat = "identity") +
-  scale_fill_manual(values = color_mapping) +
-  theme_minimal() +
-  labs(title = "barplot inhouse_wetsus_2023 mock communities", x = "Sample", y = "Abundantie (%)", fill = "Genus")
-
-ggsave("figures/bar_plot_inhouse_wetsus_2023.pdf", plot = bar_plot_inhouse_wetsus_2023, width = 6, height = 4)
-ggsave("figures/bar_plot_inhouse_wetsus_2023.jpg", plot = bar_plot_inhouse_wetsus_2023, width = 6, height = 4)
-
-bar_plot_inhouse_wetsus_2023
-
-Genus_abundance_inhouse_wetsus_2023 = 
-  mock_only_Inhouse_wetsus_2023_samples_2 %>% 
-  group_by(Sample, Genus) %>%
-  summarize(total_abundance = sum(abund))
-
-# Zymo_log10
-mock_only_zymo_log10_samples =
-Zymo_log10_studies %>%
-  lapply(function(df) {
-    df %>% 
-  filter(Sample_mock == "mock") %>%
-  select(OTU, Sample, everything()) %>% 
-  mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-  group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-  summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration), .groups = "drop") %>% 
-  distinct() %>% 
-  group_by(Sample, Genus) %>%   
-  summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            .groups = "drop") %>% 
-  arrange(-abund)
-  }) %>% 
-  bind_rows()
-
-Zymo_mock =
-  c("Listeria", "Pseudomonas", "Bacillus", "Saccharomyces", "Escherichia-Shigella", "Salmonella", "Lactobacillus", "Enterococcus", "Cryptococcus", "Staphylococcus")
-
-mock_only_zymo_log10_samples_2 = 
-  mock_only_zymo_log10_samples %>% 
-  filter(!Sample %in% c("MCL1", "MCL2")) %>% 
-  mutate(Genus = ifelse(Genus %in% Zymo_mock, Genus, "Other genus")) %>% 
-  mutate(Genus = factor(Genus, levels = c(setdiff(unique(Genus), "Other genus"), "Other genus")))
-
-bar_plot_zymo_log10 =
-  ggplot(mock_only_zymo_log10_samples_2, aes(x = Sample , y = abund, fill = Genus)) +
-  geom_bar(position= "stack", stat = "identity") +
-  scale_fill_manual(values = color_mapping) +
-  theme_minimal() +
-  labs(title = "barplot zyno_log10 mock communities", x = "Sample", y = "Abundantie (%)", fill = "Genus")
-
-ggsave("figures/bar_plot_zymo_log10.pdf", plot = bar_plot_zymo_log10, width = 6, height = 4)
-ggsave("figures/bar_plot_zymo_log10.jpg", plot = bar_plot_zymo_log10, width = 6, height = 4)
-
-bar_plot_zymo_log10
-
-Genus_abundance_zymo_log10 = 
-  mock_only_zymo_log10_samples_2 %>% 
-  group_by(Sample, Genus) %>%
-  summarize(total_abundance = sum(abund))
-
-# Zymo_equil
-mock_only_zymo_equil_samples =
-Zymo_equil_studies %>%
-  lapply(function(df) {
-    df %>% 
-  filter(Sample_mock == "mock") %>%
-  select(OTU, Sample, everything()) %>% 
-  mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-  group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-  summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration), .groups = "drop") %>% 
-  distinct() %>% 
-  group_by(Sample, Genus) %>%   
-  summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            .groups = "drop") %>% 
-  arrange(-abund)
-  }) %>% 
-  bind_rows()
-
-Zymo_mock =
-  c("Listeria", "Pseudomonas", "Bacillus", "Saccharomyces", "Escherichia-Shigella", "Salmonella", "Lactobacillus", "Enterococcus", "Cryptococcus", "Staphylococcus")
-
-mock_only_zymo_equil_samples_2 = 
-  mock_only_zymo_equil_samples %>% 
-  filter(!Sample %in% c("MCL1", "MCL2")) %>% 
-  mutate(Genus = ifelse(Genus %in% Zymo_mock, Genus, "Other genus")) %>% 
-  mutate(Genus = factor(Genus, levels = c(setdiff(unique(Genus), "Other genus"), "Other genus")))
-
-bar_plot_zymo_equil =
-  ggplot(mock_only_zymo_equil_samples_2, aes(x = Sample , y = abund, fill = Genus)) +
-  geom_bar(position= "stack", stat = "identity") +
-  scale_fill_manual(values = color_mapping) +
-  theme_minimal() +
-  labs(title = "barplot zymo_equil mock communities", x = "Sample", y = "Abundantie (%)", fill = "Genus")
-
-ggsave("figures/bar_plot_zymo_equil.pdf", plot = bar_plot_zymo_equil, width = 6, height = 4)
-ggsave("figures/bar_plot_zymo_equil.jpg", plot = bar_plot_zymo_equil, width = 6, height = 4)
-
-bar_plot_zymo_equil
-
-Genus_abundance_zymo_equil = 
-  mock_only_zymo_equil_samples_2 %>% 
-  group_by(Sample, Genus) %>%
-  summarize(total_abundance = sum(abund))
+# pairwise comparison of slopes among sample characters
+emmeans::emtrends(abund_dna_char_diff, pairwise ~ sample_char, var = "dna_char_diff")
 ```
 
-```{r view genera in the mock}
-# view all genera in mock
-mock_only_Inhouse_wetsus_2022_samples %>% 
-  filter(abund > 0) %>% 
-  select(Genus) %>%
-  unique %>%
-  view()
-
-mock_only_Inhouse_wetsus_2023_samples %>% 
-  filter(abund > 0) %>% 
-  select(Genus) %>%
-  unique %>%
-  view()
-
-mock_only_zymo_log10_samples %>% 
-  filter(abund > 0) %>% 
-  select(Genus) %>%
-  unique %>%
-  view()
-
-mock_only_zymo_equil_samples %>% 
-  filter(abund > 0) %>% 
-  select(Genus) %>%
-  unique %>%
-  view()
-```
-
-```{r subset mock communities, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# Table of mock composition
-Zymo_log10 =
-  tibble(Genus = c("Listeria",
-                   "Pseudomonas",
-                   "Bacillus",
-                   "Saccharomyces",
-                   "Escherichia-Shigella",
-                   "Salmonella",
-                   "Lactobacillus",
-                   "Enterococcus",
-                   "Cryptococcus",
-                   "Staphylococcus"),
-         zymo_abund = c(
-                   95.9,
-                   2.8,
-                   1.2,
-                   0,
-                   0.069,
-                   0.07,
-                   0.012,
-                   0.00067,
-                   0,
-                   0.0001))
-
-Zymo_equil =
-  tibble(Genus = c("Pseudomonas", 
-                   "Escherichia-Shigella", 
-                   "Salmonella", 
-                   "Lactobacillus", 
-                   "Enterococcus", 
-                   "Staphylococcus", 
-                   "Listeria", 
-                   "Bacillus", 
-                   "Saccharomyces", 
-                   "Cryptococcus"),
-         zymo_abund = c(
-                   4.2,
-                   10.1,
-                   10.4,
-                   18.4,
-                   9.9,
-                   15.5,
-                   14.1,
-                   17.4,
-                   0,
-                   0)) 
-
-Inhouse2022 =
-  tibble(Genus = c("Serratia",
-                   "Massilia",
-                   "Brevibacillus",
-                   "Bacillus",
-                   "Weizmannia",
-                   "Lysinibacillus",
-                   "Peribacillus",
-                   "Bordetella"),
-         Inhouse2022_abund = c(
-                   50,
-                   25,
-                   12.5,
-                   6.25,
-                   3.13,
-                   1.56,
-                   0.78,
-                   0.39))
 
 
-Inhouse2022_correct =
-  tibble(Genus = c("Brevibacillus",
-                   "Bacillus",
-                   "Lysinibacillus",
-                   "Bordetella"),
-         Inhouse2022_abund = c(
-                   55.17,
-                   36.21,
-                   6.90,
-                   1.72))
+# codes die ik niet voor mijn verslag ga gebruiken
 
-Inhouse2023 =
-  tibble(Genus = c("Brevibacillus",
-                   "Bacillus",
-                   "Lysinibacillus",
-                   "Sphingobium",
-                   "Streptomyces",
-                   "Burkholderia-Caballeronia-Paraburkholderia"),
-         Inhouse2023_abund = c(
-                   50.78,
-                   31.73,
-                   12.69,
-                   3.18,
-                   0.79,
-                   0.40))
-
-Inhouse_PRJNA648321 =
-  tibble(Genus = c("Pseudomonas",
-                   "Escherichia",
-                   "Agrobacterium",
-                   "Salmonella",
-                   "Lactobacillus",
-                   "Enterococcus",
-                   "Staphylococcus",
-                   "Listeria",
-                   "Bacillus"),
-         Inhouse_PRJNA648321_abund = c(
-                  9.48,
-                  13.08,
-                  3.32,
-                  34.12,
-                  7.30,
-                  14.22,
-                  5.50,
-                  10.43,
-                  2.56))
-# 
-# Inhouse_PRJEB36253 =
-#   tibble(Genus = c(""),
-#          Inhouse_PRJEB36253_abund = c(
-#            
-#          ))
-```
-
-```{r abudance theoretical vs measured, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# Theoretical vs measured abundance 
-
-# inhouse wetsus 2022
-table_measured_vs_theoretical_inhouse_wetsus_2022 = 
-  mock_only_Inhouse_wetsus_2022_samples %>% 
-  filter(!Sample %in% c("MCZ", "MC23")) %>% 
-  group_by(Genus) %>% 
-  summarise(mean_abundance_inhouse_wetsus_2022 = mean(abund)) %>% 
-  select(Genus, mean_abundance_inhouse_wetsus_2022) %>% 
-  inner_join(Inhouse2022_correct, by = "Genus")
-
-plot_measured_vs_theoretical_inhouse_wetsus_2022 =
-  ggplot(table_measured_vs_theoretical_inhouse_wetsus_2022, aes(x = Inhouse2022_abund, 
-                                                                y = mean_abundance_inhouse_wetsus_2022)) +
-  geom_point(size = 3) +
-  geom_text_repel(aes(label = Genus), box.padding = 0.5, hjust = 0.5, vjust = 1.0) +
-  
-  #geom_text(aes(label = Genus), hjust = 0.5, vjust = -1.0, check_overlap = TRUE) +
-  labs(title = "Inhouse wetsus 2022",
-       x = "Theoretische Abundantie",
-       y = "Gemeten Abundantie") +
-  theme_minimal() +
-  theme(legend.position = "none") +
-  geom_abline(intercept = 0, slope = 1) +
-  ylim(0, NA) 
-
-ggsave("figures/plot_measured_vs_theoretical_inhouse_wetsus_2022.pdf", plot = plot_measured_vs_theoretical_inhouse_wetsus_2022, width = 6, height = 4)
-ggsave("figures/plot_measured_vs_theoretical_inhouse_wetsus_2022.jpg", plot = plot_measured_vs_theoretical_inhouse_wetsus_2022, width = 6, height = 4)
-
-plot_measured_vs_theoretical_inhouse_wetsus_2022
-
-abundance_difference_inhouse_wetsus_2022 =
-  table_measured_vs_theoretical_inhouse_wetsus_2022$mean_abundance_inhouse_wetsus_2022 -     table_measured_vs_theoretical_inhouse_wetsus_2022$Inhouse2022_abund
-
-#t_test_result <- t.test(abundance_difference_inhouse_wetsus_2022)
-
-# inhouse wetsus 2023
-table_measured_vs_theoretical_inhouse_wetsus_2023 = 
-  mock_only_Inhouse_wetsus_2023_samples %>% 
-  filter(Sample != "MC22") %>% 
-  group_by(Genus) %>% 
-  summarise(mean_abundance_inhouse_wetsus_2023 = mean(abund)) %>% 
-  select(Genus, mean_abundance_inhouse_wetsus_2023) %>% 
-  inner_join(Inhouse2023, by = "Genus")
-
-plot_measured_vs_theoretical_inhouse_wetsus_2023 =
-  ggplot(table_measured_vs_theoretical_inhouse_wetsus_2023, aes(x = Inhouse2023_abund, 
-                                                              y = mean_abundance_inhouse_wetsus_2023)) +
-  geom_point(size = 3) +
-  #geom_text_repel(aes(label = Genus), box.padding = 0.5, hjust = 0.5, vjust = 1.0) +
-  
-  #geom_text(aes(label = Genus), hjust = 0.5, vjust = -1.0, check_overlap = TRUE) +
-  labs(title = "Inhouse wetsus 2023",
-       x = "Theoretische Abundantie",
-       y = "Gemeten Abundantie") +
-  theme_minimal() +
-  theme(legend.position = "none") +
-  geom_abline(intercept = 0, slope = 1) +
-  ylim(0, NA) 
-
-ggsave("figures/plot_measured_vs_theoretical_inhouse_wetsus_2023.pdf", plot = plot_measured_vs_theoretical_inhouse_wetsus_2023, width = 6, height = 4)
-ggsave("figures/plot_measured_vs_theoretical_inhouse_wetsus_2023.jpg", plot = plot_measured_vs_theoretical_inhouse_wetsus_2023, width = 6, height = 4)
-
-plot_measured_vs_theoretical_inhouse_wetsus_2023
-
-abundance_difference_inhouse_wetsus_2023 =
-  table_measured_vs_theoretical_inhouse_wetsus_2023$mean_abundance_inhouse_wetsus_2023 -     table_measured_vs_theoretical_inhouse_wetsus_2023$Inhouse2023_abund
-
-# zymo_log10
-table_measured_vs_theoretical_zymo_log10 = 
-  mock_only_zymo_log10_samples %>%
-  group_by(Genus) %>% 
-  summarise(mean_abundance_zymo_log10 = mean(abund)) %>% 
-  select(Genus, mean_abundance_zymo_log10) %>% 
-  inner_join(Zymo_log10, by = "Genus")
-
-plot_measured_vs_theoretical_zumo_log10 =
-  ggplot(table_measured_vs_theoretical_zymo_log10, aes(x = zymo_abund, 
-                                                     y = mean_abundance_zymo_log10+0.00001)) +
-  geom_point(size = 3) +
-  scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
-                labels = scales::trans_format("log10", scales::math_format(10^.x)),
-                limits = c(0.00001, 100)) +
-  scale_x_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
-                labels = scales::trans_format("log10", scales::math_format(10^.x)),
-                limits = c(0.00001, 100)) +
-  #geom_text_repel(aes(label = Genus), box.padding = 0.5, hjust = 0.5, vjust = 1.0) +
-  
-  #geom_text(aes(label = Genus), hjust = 0.5, vjust = -1.0, check_overlap = TRUE) +
-  labs(title = "Zymo_log10",
-       x = "Theoretische Abundantie",
-       y = "Gemeten Abundantie") +
-  theme_minimal() +
-  theme(legend.position = "none") +
-  geom_abline(intercept = 0, slope = 1) +
-  geom_text_repel(aes(label = Genus), size = 3,  box.padding = 0.5, hjust = 0.5, vjust = 1.0) 
-
-ggsave("figures/plot_measured_vs_theoretical_zumo_log10.pdf", plot = plot_measured_vs_theoretical_zumo_log10, width = 6, height = 4)
-ggsave("figures/plot_measured_vs_theoretical_zumo_log10.jpg", plot = plot_measured_vs_theoretical_zumo_log10, width = 6, height = 4)
-
-plot_measured_vs_theoretical_zumo_log10
-
-abundance_difference_zymo_log10 =
-  table_measured_vs_theoretical_zymo_log10$mean_abundance_zymo_log10 -     table_measured_vs_theoretical_zymo_log10$zymo_abund
-
-# zymo_equil
-table_measured_vs_theoretical_zymo_equil = 
-  mock_only_zymo_equil_samples %>% 
-  filter(!Sample %in% c("MCL1", "MCL2")) %>% 
-  group_by(Genus) %>% 
-  summarise(mean_abundance_zymo_equil = mean(abund)) %>% 
-  select(Genus, mean_abundance_zymo_equil) %>% 
-  inner_join(Zymo_equil, by = "Genus")
-
-plot_measured_vs_theoretical_zymo_equl =
-  ggplot(table_measured_vs_theoretical_zymo_equil, aes(x = zymo_abund, 
-                                                     y = mean_abundance_zymo_equil)) +
-  geom_point(size = 3) +
-  geom_text_repel(aes(label = Genus), size = 3, box.padding = 0.5, hjust = 0.5, vjust = 1.0) +
-  
-  #geom_text(aes(label = Genus), hjust = 0.5, vjust = -1.0, check_overlap = TRUE) +
-  labs(title = "Zymo_equil",
-       x = "Theoretische Abundantie",
-       y = "Gemeten Abundantie") +
-  theme_minimal() +
-  theme(legend.position = "none") +
-  geom_abline(intercept = 0, slope = 1) +
-  ylim(0, NA) 
-
-ggsave("figures/plot_measured_vs_theoretical_zymo_equl.pdf", plot = plot_measured_vs_theoretical_zymo_equl, width = 6, height = 4)
-ggsave("figures/plot_measured_vs_theoretical_zymo_equl.jpg", plot = plot_measured_vs_theoretical_zymo_equl, width = 6, height = 4)
-
-plot_measured_vs_theoretical_zymo_equl
-
-abundance_difference_zymo_equil =
-  table_measured_vs_theoretical_zymo_equil$mean_abundance_zymo_equil -     table_measured_vs_theoretical_zymo_equil$zymo_abund
-
-```
 
 ```{r unique mock, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
 # mock samples that are not include in de calculation of mean, sd and CV
@@ -1417,7 +1522,7 @@ unique_mock_zymo_equil_species =
 # Divide the DNA concentration of the mock by the DNA concentration of the sample
 
 # inhouse_wetsus_2022
-Inhouse_wetsus_2022_studies_samples_ratio <-
+Inhouse_wetsus_2022_studies_samples_dnadiff <-
   Inhouse_wetsus_2022_studies %>% 
   lapply(function(df) {
     mock_dna_concentration_inhouse_wetsus_2022 =
@@ -1428,56 +1533,58 @@ Inhouse_wetsus_2022_studies_samples_ratio <-
       pull(mean_mock_inhouse_wetsus_2022_dna_conc)
     
       df %>%
-      filter(Sample_mock != "blank") %>% 
+      filter(Sample_mock == "sample") %>% 
       select(OTU, Sample, everything()) %>% 
       mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
       group_by(across(-c(SampleID, Abundance, read_count))) %>% 
       summarise(mean_abundance = mean(Abundance), 
             mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration) / mock_dna_concentration_inhouse_wetsus_2022,
+            mean_dna_conc = mean(DNA_Concentration),
             .groups = "drop") %>% 
       distinct() %>% 
-      group_by(Sample, Genus) %>%   
+      group_by(study, Sample, Genus) %>%   
       summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            .groups = "drop") %>% 
+                readcount = mean(mean_read_count),
+                dnaconc = mean(mean_dna_conc),
+                dnadiff_ms = mock_dna_concentration_inhouse_wetsus_2022 - dnaconc,
+                .groups = "drop") %>%  
       arrange(-abund)
     }) %>% 
   bind_rows()
 
 # inhouse_wetsus_2023
-Inhouse_wetsus_2023_studies_samples_ratio <-
+Inhouse_wetsus_2023_studies_samples_dnadiff <-
   Inhouse_wetsus_2023_studies %>% 
   lapply(function(df) {
     mock_dna_concentration_inhouse_wetsus_2023 =
       df %>% 
       filter(Sample_mock == "mock") %>% 
-      filter(!Sample %in% c("MCZ", "MC22")) %>%  
+      filter(!Sample %in% c("MCZ")) %>%  
       summarise(mean_mock_inhouse_wetsus_2023_dna_conc = mean(DNA_Concentration, na.rm = TRUE)) %>% 
       pull(mean_mock_inhouse_wetsus_2023_dna_conc)
     
       df %>%
-      filter(Sample_mock != "blank") %>% 
+      filter(Sample_mock == "sample") %>% 
       select(OTU, Sample, everything()) %>% 
       mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
       group_by(across(-c(SampleID, Abundance, read_count))) %>% 
       summarise(mean_abundance = mean(Abundance), 
             mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration) / mock_dna_concentration_inhouse_wetsus_2023,
+            mean_dna_conc = mean(DNA_Concentration),
             .groups = "drop") %>% 
       distinct() %>% 
-      group_by(Sample, Genus) %>%   
+      group_by(study, Sample, Genus) %>%   
       summarise(abund = sum(mean_abundance),
             readcount = sum(mean_read_count),
             dnaconc = mean(mean_dna_conc),
+            dnadiff_ms = mock_dna_concentration_inhouse_wetsus_2023 - dnaconc,
             .groups = "drop") %>% 
       arrange(-abund)
     }) %>% 
   bind_rows()
 
 # zymo_log10
-Zymo_log10_studies_samples_ratio <-
+Zymo_log10_studies_samples_dnadiff <-
   Zymo_log10_studies %>% 
   lapply(function(df) {
     mock_dna_concentration_zymo_log10 =
@@ -1487,26 +1594,27 @@ Zymo_log10_studies_samples_ratio <-
       pull(mean_mock_zymo_log10_dna_conc)
     
       df %>%
-      filter(Sample_mock != "blank") %>% 
+      filter(Sample_mock == "sample") %>% 
       select(OTU, Sample, everything()) %>% 
       mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
       group_by(across(-c(SampleID, Abundance, read_count))) %>% 
       summarise(mean_abundance = mean(Abundance), 
             mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration) / mock_dna_concentration_zymo_log10,
+            mean_dna_conc = mean(DNA_Concentration),
             .groups = "drop") %>% 
       distinct() %>% 
-      group_by(Sample, Genus) %>%   
+      group_by(study, Sample, Genus) %>%   
       summarise(abund = sum(mean_abundance),
             readcount = sum(mean_read_count),
             dnaconc = mean(mean_dna_conc),
+            dnadiff_ms = mock_dna_concentration_zymo_log10 - dnaconc,
             .groups = "drop") %>% 
       arrange(-abund)
     }) %>% 
   bind_rows()
 
 # zymo_equil
-Zymo_equil_studies_samples_ratio <-
+Zymo_equil_studies_samples_dnadiff <-
   Zymo_equil_studies %>% 
   lapply(function(df) {
     mock_dna_concentration_zymo_equil =
@@ -1516,26 +1624,28 @@ Zymo_equil_studies_samples_ratio <-
       pull(mean_mock_zymo_equil_dna_conc)
     
       df %>%
-      filter(Sample_mock != "blank") %>% 
+      filter(Sample_mock == "sample") %>% 
       select(OTU, Sample, everything()) %>% 
       mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
       group_by(across(-c(SampleID, Abundance, read_count))) %>% 
       summarise(mean_abundance = mean(Abundance), 
             mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration) / mock_dna_concentration_zymo_equil,
+            mean_dna_conc = mean(DNA_Concentration),
             .groups = "drop") %>% 
       distinct() %>% 
-      group_by(Sample, Genus) %>%   
+      group_by(study, Sample, Genus) %>%   
       summarise(abund = sum(mean_abundance),
             readcount = sum(mean_read_count),
             dnaconc = mean(mean_dna_conc),
+            dnadiff_ms = mock_dna_concentration_zymo_equil - dnaconc,
             .groups = "drop") %>% 
       arrange(-abund)
     }) %>% 
   bind_rows()
 ```
 
-```{r tabel maken voor plot sampel / mock (samples), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+```{r view varation in genus, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+# to view variation in genus abundances across samples:
 # calculate mean, sd and cv across all samples for every Genus
 table_Inhouse_wetsus_2022_samples_ratio = 
   Inhouse_wetsus_2022_studies_samples_ratio %>% 
@@ -1580,435 +1690,357 @@ table_Zymo_equil_samples_ratio =
          CV = sd/mean*100) %>% 
   arrange(-mean) %>% 
   ungroup()
-
-# remove mean, sd, cv from table and also remove mock sampels
-# plotting results 
-table2_inhouse_wetsus_2022_samples_ratio =
-  table_Inhouse_wetsus_2022_samples_ratio %>% 
-  filter(Genus %in% unique_mock_inhouse_wetsus_2022_species$Genus) %>% 
-  select(-mean, -sd, -CV) %>% 
-  pivot_longer(cols = -c(Genus), names_to = "Sample", values_to = "abund") %>% 
-  left_join(., Inhouse_wetsus_2022_studies_samples_ratio %>% 
-              select(Sample, dnaconc) %>% 
-              distinct(), by = "Sample") %>% 
-   filter(!Sample %in% mock_names_inhouse_wetsus_2022$Sample)
-
-table2_inhouse_wetsus_2023_samples_ratio =
-table_Inhouse_wetsus_2023_samples_ratio %>% 
-  filter(Genus %in% unique_mock_inhouse_wetsus_2023_species$Genus) %>%
-  select(-mean, -sd, -CV) %>% 
-  pivot_longer(cols = -c(Genus), names_to = "Sample", values_to = "abund") %>% 
-  left_join(., Inhouse_wetsus_2023_studies_samples_ratio %>% 
-              select(Sample, dnaconc) %>% 
-              distinct(), by = "Sample") %>% 
-  filter(!Sample %in% mock_names_inhouse_wetsus_2023$Sample)
-
-table2_zymo_log10_samples_ratio =
-table_Zymo_log10_samples_ratio %>% 
-  filter(Genus %in% unique_mock_zymo_log10_species$Genus) %>%
-  select(-mean, -sd, -CV) %>% 
-  pivot_longer(cols = -c(Genus), names_to = "Sample", values_to = "abund") %>% 
-  left_join(., Zymo_log10_studies_samples_ratio %>% 
-              select(Sample, dnaconc) %>% 
-              distinct(), by = "Sample") %>% 
-  filter(!Sample %in% mock_names_zymo_log10$Sample)
-
-table2_zymo_equil_samples_ratio =
-table_Zymo_equil_samples_ratio %>% 
-  filter(Genus %in% unique_mock_zymo_equil_species$Genus) %>%
-  select(-mean, -sd, -CV) %>% 
-  pivot_longer(cols = -c(Genus), names_to = "Sample", values_to = "abund") %>% 
-  left_join(., Zymo_equil_studies_samples_ratio %>% 
-              select(Sample, dnaconc) %>% 
-              distinct(), by = "Sample") %>%
-  filter(!Sample %in% mock_names_zymo_equil$Sample)
 ```
 
-```{r grafiek plotten voor sample / mock (sampels), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+```{r tabel maken voor plot sampel / mock (samples), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+# remove mean, sd, cv from table and also remove mock sampels
+# plotting results 
+table2_inhouse_wetsus_2022_samples_dnadiff =
+  Inhouse_wetsus_2022_studies_samples_dnadiff %>% 
+  filter(Genus %in% Inhouse2022_correct$Genus) %>%
+  select(study, Genus, abund, dnadiff_ms)
+
+table2_inhouse_wetsus_2023_samples_dnadiff =
+Inhouse_wetsus_2023_studies_samples_dnadiff %>%
+  filter(Genus %in% Inhouse2023$Genus) %>%
+  select(study, Genus, abund, dnadiff_ms)
+
+table2_zymo_log10_samples_dnadiff =
+Zymo_log10_studies_samples_dnadiff %>%
+  filter(Genus %in% Zymo_log10$Genus) %>%
+  select(study, Genus, abund, dnadiff_ms)
+
+table2_zymo_equil_samples_dnadiff =
+Zymo_equil_studies_samples_dnadiff %>%
+  filter(Genus %in% Zymo_equil$Genus) %>%
+  select(study, Genus, abund, dnadiff_ms)
+```
+
+```{r test plot, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+# Test plot 
 # plot inhouse_wetsus_2022
-plot_inhouse_wetsus_2022_samples_ratio =
-  ggplot(table2_inhouse_wetsus_2022_samples_ratio, aes(x = dnaconc, y = abund, title)) + 
+table2_inhouse_wetsus_2022_samples_dnadiff_2 = 
+  table2_inhouse_wetsus_2022_samples_dnadiff %>% 
+  mutate(log10_abund = log10(abund + 0.0000001),
+         sqrt_abund = sqrt(abund + 0.0000001))
+
+# overall linear regression test (Genus random variable)
+Statistic_inhouse_wetsus_2022_samples =
+  table2_inhouse_wetsus_2022_samples_dnadiff_2 %>% 
+  with(lmerTest::lmer(sqrt_abund ~ dnadiff_ms + (1 | Genus)))
+
+summary_model_inhouse_wetsus_2022 <- summary(Statistic_inhouse_wetsus_2022_samples)
+coefficients_inhouse_wetsus_2022 <- summary_model_inhouse_wetsus_2022$coefficients
+
+p_value_inhouse_wetsus_2022 <- coefficients_inhouse_wetsus_2022["dnadiff_ms", "Pr(>|t|)"]
+correlation_inhouse_wetsus_2022 <- cor(table2_inhouse_wetsus_2022_samples_dnadiff_2$dnadiff_ms,
+                                        table2_inhouse_wetsus_2022_samples_dnadiff_2$log10_abund)
+
+# overall linear regression test (Genus-specific)
+Statistic_inhouse_wetsus_2022_samples_Genus_int =
+  table2_inhouse_wetsus_2022_samples_dnadiff_2 %>% 
+  with(lm(sqrt_abund ~ dnadiff_ms*Genus))
+
+hist(resid(Statistic_inhouse_wetsus_2022_samples_Genus_int))
+
+# test significance of interaction
+anova(Statistic_inhouse_wetsus_2022_samples_Genus_int)
+
+## interaction not significant: interpret p values from LmerTest
+anova(Statistic_inhouse_wetsus_2022_samples)
+summary(Statistic_inhouse_wetsus_2022_samples)
+
+
+inhouse_wetsus_2022_samples_dnadiff =
+  table2_inhouse_wetsus_2022_samples_dnadiff %>% 
+  ggplot(aes(x = dnadiff_ms, y = abund)) + 
   geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  facet_wrap(~Genus) +
-  scale_y_continuous(transform = "log2") +
+  #facet_wrap(~Genus) +
+  scale_y_continuous(transform = "sqrt") +
+  #scale_x_log10() +
   geom_smooth(method = "lm", se = F, color = "grey50") +
   theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'Ratio in DNA Concentratie (ng/µl)', y = 'Abundantie (%)', title = 'plot_inhouse_wetsus_2022_samples_ratio')
+  labs(x = 'DNA Concentration difference (Mock - Sample)', y = 'Percentage Mock OTU in sample (sqrt transformed) ') +
+  annotate("text", x = -Inf, y = Inf, label = paste0("P-value: ", format.pval(p_value_inhouse_wetsus_2022),
+                                                     "\nCorrelation: ", round(correlation_inhouse_wetsus_2022, 3)), 
+           hjust = -0.1, vjust = 1.1, size = 3.5, color = "black")
 
-ggsave("figures/plot_inhouse_wetsus_2022_samples_ratio.pdf", plot = plot_inhouse_wetsus_2022_samples_ratio, width = 6, height = 4)
-ggsave("figures/plot_inhouse_wetsus_2022_sampels_ratio.jpg", plot = plot_inhouse_wetsus_2022_samples_ratio, width = 6, height = 4)
 
-plot_inhouse_wetsus_2022_samples_ratio
+ggsave("figures/inhouse_wetsus_2022_samples_dnadiff.pdf", plot = inhouse_wetsus_2022_samples_dnadiff, width = 6, height = 4)
+ggsave("figures/inhouse_wetsus_2022_sampels_dnadiff.jpg", plot = inhouse_wetsus_2022_samples_dnadiff, width = 6, height = 4)
+
+
+```
+
+```{r Calculate statistics and plot abundance against mock-sample DNA concentration (sampels), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+# statastic inhouse_wetsus_2022 
+
+table3_inhouse_wetsus_2022_samples_dnadiff = 
+  table2_inhouse_wetsus_2022_samples_dnadiff %>% 
+  mutate(log10_abund = log10(abund + 0.0000001),
+         sqrt_abund = sqrt(abund + 0.0000001))
+
+# overall linear regression test (Genus random variable)
+Statistic_inhouse_wetsus_2022_samples =
+  table3_inhouse_wetsus_2022_samples_dnadiff %>% 
+  with(lmerTest::lmer(sqrt_abund ~ dnadiff_ms + (1 | Genus)))
+
+summary_model_inhouse_wetsus_2022 <- summary(Statistic_inhouse_wetsus_2022_samples)
+coefficients_inhouse_wetsus_2022 <- summary_model_inhouse_wetsus_2022$coefficients
+
+p_value_inhouse_wetsus_2022 <- coefficients_inhouse_wetsus_2022["dnadiff_ms", "Pr(>|t|)"]
+correlation_inhouse_wetsus_2022 <- cor(table2_inhouse_wetsus_2022_samples_dnadiff_2$dnadiff_ms,
+                                        table2_inhouse_wetsus_2022_samples_dnadiff_2$sqrt_abund)
+
+# overall linear regression test (Genus-specific)
+Statistic_inhouse_wetsus_2022_samples_Genus_int =
+  table3_inhouse_wetsus_2022_samples_dnadiff %>% 
+  with(lm(sqrt_abund ~ dnadiff_ms*Genus))
+
+hist(resid(Statistic_inhouse_wetsus_2022_samples_Genus_int))
+
+# test significance of interaction
+anova(Statistic_inhouse_wetsus_2022_samples_Genus_int)
+
+## interaction not significant: interpret p values from LmerTest
+anova(Statistic_inhouse_wetsus_2022_samples)
+summary(Statistic_inhouse_wetsus_2022_samples)
+
+
+# Plot inhouse_wetsus_2022
+inhouse_wetsus_2022_samples_dnadiff =
+  table2_inhouse_wetsus_2022_samples_dnadiff %>% 
+  ggplot(aes(x = dnadiff_ms, y = abund)) + 
+  geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
+  #facet_wrap(~Genus) +
+  scale_y_continuous(transform = "sqrt") +
+  #scale_x_log10() +
+  geom_smooth(method = "lm", se = F, color = "grey50") +
+  theme(axis.text.x = element_text(size = 8)) +
+  labs(x = 'DNA Concentration difference (Mock - Sample)', y = 'Percentage Mock OTU in sample (sqrt transformed) ') +
+  annotate("text", x = -Inf, y = Inf, label = paste0("P-value: ", format.pval(p_value_inhouse_wetsus_2022, 
+                                                                              scientific = T, 
+                                                                              digits = 3),
+                                                     "\nCorrelation: ", round(correlation_inhouse_wetsus_2022, 3)), 
+           hjust = -0.1, vjust = 1.1, size = 3.5, color = "black")
+
+ggsave("figures/inhouse_wetsus_2022_samples_dnadiff.pdf", plot = inhouse_wetsus_2022_samples_dnadiff, width = 6, height = 4)
+ggsave("figures/inhouse_wetsus_2022_sampels_dnadiff.jpg", plot = inhouse_wetsus_2022_samples_dnadiff, width = 6, height = 4)
+
+inhouse_wetsus_2022_samples_dnadiff
+
+# statastic inhouse_wetsus_2023
+table3_inhouse_wetsus_2023_samples_dnadiff = 
+  table2_inhouse_wetsus_2023_samples_dnadiff %>% 
+  mutate(log10_abund = log10(abund + 0.0000001),
+         sqrt_abund = sqrt(abund + 0.0000001))
+
+# overall linear regression test (Genus random variable)
+Statistic_inhouse_wetsus_2023_samples =
+  table3_inhouse_wetsus_2023_samples_dnadiff %>% 
+  with(lmerTest::lmer(log10_abund ~ dnadiff_ms + (1 | Genus)))
+
+summary_model_inhouse_wetsus_2023 <- summary(Statistic_inhouse_wetsus_2023_samples)
+coefficients_inhouse_wetsus_2023 <- summary_model_inhouse_wetsus_2023$coefficients
+
+p_value_inhouse_wetsus_2023 <- coefficients_inhouse_wetsus_2023["dnadiff_ms", "Pr(>|t|)"]
+correlation_inhouse_wetsus_2023 <- cor(table3_inhouse_wetsus_2023_samples_dnadiff$dnadiff_ms,
+                                        table3_inhouse_wetsus_2023_samples_dnadiff$log10_abund)
+
+# overall linear regression test (Genus-specific)
+Statistic_inhouse_wetsus_2023_samples_Genus_int =
+  table3_inhouse_wetsus_2023_samples_dnadiff %>% 
+  with(lm(log10_abund ~ dnadiff_ms*Genus))
+
+hist(resid(Statistic_inhouse_wetsus_2023_samples_Genus_int))
+
+# test significance of interaction
+anova(Statistic_inhouse_wetsus_2023_samples_Genus_int)
+
+## interaction not significant: interpret p values from LmerTest
+anova(Statistic_inhouse_wetsus_2023_samples)
+summary(Statistic_inhouse_wetsus_2023_samples)
+
+# ##
+# genus_models = 
+#   table3_inhouse_wetsus_2023_samples_dnadiff %>%
+#   group_by(Genus) %>%
+#   do(model = lm(log10_abund ~ dnadiff_ms, data = .))
+# 
+# genus_p_values =
+#   genus_models %>%
+#   summarise(Genus = Genus, p_value = summary(model)$coefficients["dnadiff_ms", "Pr(>|t|)"])
+
 
 # Plot inhouse_wetsus_2023
-plot_inhouse_wetsus_2023_samples_ratio =
-ggplot(table2_inhouse_wetsus_2023_samples_ratio, aes(x = dnaconc, y = abund)) + 
+inhouse_wetsus_2023_samples_dnadiff =
+  table2_inhouse_wetsus_2023_samples_dnadiff %>% 
+  ggplot(aes(x = dnadiff_ms, y = abund)) + 
   geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  facet_wrap(~Genus) +
-  scale_y_continuous(transform = "log2") +
+  #facet_wrap(~Genus) +
+  scale_y_continuous(transform = "log10") +
   geom_smooth(method = "lm", se = F, color = "grey50") +
   theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'Ratio in DNA Concentratie (ng/µl)', y = 'Abundantie (%)', title = 'plot_inhouse_wetsus_2023_samples_ratio')
+  labs(x = 'DNA Concentration difference (Mock - Sample)', y = 'Percentage Mock OTU in sample (log10 transformed) ') +
+  # geom_text(data = genus_p_values, aes(x = -Inf, y = Inf, 
+  #                                     label = paste0("p_value: ", format.pval(p_value, 
+  #                                                                             scientific = F,
+  #                                                                             digits = 3))),
+  #          hjust = -0.1, vjust = 1.1, size = 3.5, color = "black") 
+  annotate("text", x = -Inf, y = Inf, label = paste0("P-value: ", format.pval(p_value_inhouse_wetsus_2023, 
+                                                                              scientific = T, 
+                                                                              digits = 3),
+                                                     "\nCorrelation: ", round(correlation_inhouse_wetsus_2023, 3)), 
+           hjust = -0.1, vjust = 1.1, size = 3.5, color = "black")
 
-ggsave("figures/plot_inhouse_wetsus_2023_samples_ratio.pdf", plot = plot_inhouse_wetsus_2023_samples_ratio, width = 6, height = 4)
-ggsave("figures/plot_inhouse_wetsus_2023_samples_ratio.jpg", plot = plot_inhouse_wetsus_2023_samples_ratio, width = 6, height = 4)
 
-plot_inhouse_wetsus_2023_samples_ratio
+ggsave("figures/inhouse_wetsus_2023_samples_dnadiff.pdf", plot = inhouse_wetsus_2023_samples_dnadiff, width = 6, height = 4)
+ggsave("figures/inhouse_wetsus_2023_samples_dnadiff.jpg", plot = inhouse_wetsus_2023_samples_dnadiff, width = 6, height = 4)
+
+inhouse_wetsus_2023_samples_dnadiff
+
+# statastic zymo_log10
+table3_zymo_log10_samples_dnadiff = 
+  table2_zymo_log10_samples_dnadiff %>% 
+  mutate(log10_abund = log10(abund + 0.0000001),
+         sqrt_abund = sqrt(abund + 0.0000001))
+
+# overall linear regression test (Genus random variable)
+Statistic_zymo_log10_samples =
+  table3_zymo_log10_samples_dnadiff %>% 
+  with(lmerTest::lmer(sqrt_abund ~ dnadiff_ms + (1 | Genus)))
+
+summary_model_zymo_log10 <- summary(Statistic_zymo_log10_samples)
+coefficients_zymo_log10 <- summary_model_zymo_log10$coefficients
+
+p_value_zymo_log10 <- coefficients_zymo_log10["dnadiff_ms", "Pr(>|t|)"]
+correlation_zymo_log10 <- cor(table3_zymo_log10_samples_dnadiff$dnadiff_ms,
+                              table3_zymo_log10_samples_dnadiff$sqrt_abund)
+
+# overall linear regression test (Genus-specific)
+Statistic_zymo_log10_samples_Genus_int =
+  table3_zymo_log10_samples_dnadiff %>% 
+  with(lm(sqrt_abund ~ dnadiff_ms*Genus))
+
+hist(resid(Statistic_zymo_log10_samples_Genus_int))
+
+# test significance of interaction
+anova(Statistic_zymo_log10_samples_Genus_int)
+
+## interaction not significant: interpret p values from LmerTest
+anova(Statistic_zymo_log10_samples)
+summary(Statistic_zymo_log10_samples)
+
 
 # plot zymo log10
-plot_zymo_log10_samples_ratio =
-ggplot(table2_zymo_log10_samples_ratio, aes(x = dnaconc, y = abund)) + 
+zymo_log10_samples_dnadiff =
+  table2_zymo_log10_samples_dnadiff %>% 
+ggplot(aes(x = dnadiff_ms, y = abund)) + 
   geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  facet_wrap(~Genus) +
-  scale_y_continuous(transform = "log2") +
+  #facet_wrap(~Genus) +
+  scale_y_continuous(transform = "sqrt") +
   geom_smooth(method = "lm", se = F, color = "grey50") +
   theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'Ratio in DNA Concentratie (ng/µl)', y = 'Abundantie (%)', title = 'plot_zymo_log10_samples_ratio')
+  labs(x = 'DNA Concentration difference (Mock - Sample)', y = 'Percentage Mock OTU in sample (sqrt transformed) ') +
+  annotate("text", x = -Inf, y = Inf, label = paste0("P-value: ", format.pval(p_value_zymo_log10, 
+                                                                              scientific = T,
+                                                                              digits = 3),
+                                                     "\nCorrelation: ", round(correlation_zymo_log10, 3)), 
+           hjust = -0.1, vjust = 1.1, size = 3.5, color = "black")
 
-ggsave("figures/plot_zymo_log10_samples_ratio.pdf", plot = plot_zymo_log10_samples_ratio, width = 6, height = 4)
-ggsave("figures/plot_zymo_log10_samples_ratio.jpg", plot = plot_zymo_log10_samples_ratio, width = 6, height = 4)
+ggsave("figures/zymo_log10_samples_dnadiff.pdf", plot = zymo_log10_samples_dnadiff, width = 6, height = 4)
+ggsave("figures/zymo_log10_samples_dnadiff.jpg", plot = zymo_log10_samples_dnadiff, width = 6, height = 4)
 
-plot_zymo_log10_samples_ratio
+zymo_log10_samples_dnadiff
 
-# plot zymo equil 
-plot_zymo_equil_samples_ratio =
-ggplot(table2_zymo_equil_samples_ratio, aes(x = dnaconc, y = abund)) + 
+# statastic zymo_equil
+table3_zymo_equil_samples_dnadiff = 
+  table2_zymo_equil_samples_dnadiff %>% 
+  mutate(log10_abund = log10(abund + 0.0000001),
+         sqrt_abund = sqrt(abund + 0.0000001))
+
+# overall linear regression test (Genus random variable)
+Statistic_zymo_equil_samples =
+  table3_zymo_equil_samples_dnadiff %>% 
+  with(lmerTest::lmer(log10_abund ~ dnadiff_ms + (1 | Genus)))
+
+summary_model_zymo_equil <- summary(Statistic_zymo_equil_samples)
+coefficients_zymo_equil <- summary_model_zymo_equil$coefficients
+
+p_value_zymo_equil <- coefficients_zymo_equil["dnadiff_ms", "Pr(>|t|)"]
+correlation_zymo_equil <- cor(table3_zymo_equil_samples_dnadiff$dnadiff_ms,
+                              table3_zymo_equil_samples_dnadiff$log10_abund)
+
+# overall linear regression test (Genus-specific)
+Statistic_zymo_equil_samples_Genus_int =
+  table3_zymo_equil_samples_dnadiff %>% 
+  with(lm(log10_abund ~ dnadiff_ms*Genus))
+
+hist(resid(Statistic_zymo_equil_samples_Genus_int))
+
+# test significance of interaction
+anova(Statistic_zymo_equil_samples_Genus_int)
+
+## interaction not significant: interpret p values from LmerTest
+anova(Statistic_zymo_equil_samples)
+summary(Statistic_zymo_equil_samples)
+
+
+# plot zymo equil
+plot_zymo_equil_samples_dnadiff =
+  table2_zymo_equil_samples_dnadiff %>% 
+  ggplot(aes(x = dnadiff_ms, y = abund)) + 
   geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  facet_wrap(~Genus) +
-  scale_y_continuous(transform = "log2") +
+  #facet_wrap(~Genus) +
+  scale_y_continuous(transform = "log10") +
   geom_smooth(method = "lm", se = F, color = "grey50") +
   theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'Ratio in DNA Concentratie (ng/µl)', y = 'Abundantie (%)', title = 'plot_zymo_equil_samples_ratio')
+  labs(x = 'DNA Concentration difference (Mock - Sample)', y = 'Percentage Mock OTU in sample (log10 transformed) ') +
+  annotate("text", x = -Inf, y = Inf, label = paste0("P-value: ", format.pval(p_value_zymo_equil, 
+                                                                              scientific = T,
+                                                                              digits = 3),
+                                                     "\nCorrelation: ", round(correlation_zymo_equil, 3)), 
+           hjust = -0.1, vjust = 1.1, size = 3.5, color = "black")
 
 ggsave("figures/plot_zymo_equil_samples_ratio.pdf", plot = plot_zymo_equil_samples_ratio, width = 6, height = 4)
 ggsave("figures/plot_zymo_equil_samples_ratio.jpg", plot = plot_zymo_equil_samples_ratio, width = 6, height = 4)
 
-plot_zymo_equil_samples_ratio
+plot_zymo_equil_samples_dnadiff
 ```
 
-```{r statistiek (sampels)}
+```{r statistiek (sampels), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
 # statistic 
-
-table2_inhouse_wetsus_2022_samples_ratio %>% 
+Statistic_inhouse_wetsus_2022_samples =
+  table2_inhouse_wetsus_2022_samples_ratio %>% 
   mutate(log2_abund = log2(abund+0.0000001)) %>% 
-  with(lmerTest::lmer(log2_abund ~ dnaconc + (1|Genus))) %>% 
+  with(lmerTest::lmer(log2_abund ~ dnaratio_ms + (1|Genus))) %>%
   anova
 
-table2_inhouse_wetsus_2023_samples_ratio %>% 
+Statistic_inhouse_wetsus_2022_samples
+
+#lm(abund ~ dnaconc, data = table2_inhouse_wetsus_2022_samples_ratio)
+
+Statistic_inhouse_wetsus_2023_samples =
+  table2_inhouse_wetsus_2023_samples_ratio %>% 
   mutate(log2_abund = log2(abund+0.0000001)) %>% 
-  with(lmerTest::lmer(log2_abund ~ dnaconc + (1|Genus))) %>% 
+  with(lmerTest::lmer(log2_abund ~ dnaratio_ms + (1|Genus))) %>% 
   anova
 
-table2_zymo_log10_samples_ratio %>% 
+Statistic_inhouse_wetsus_2023_samples
+
+Statistic_zymo_log10_samples =
+  table2_zymo_log10_samples_ratio %>% 
   mutate(log2_abund = log2(abund+0.0000001)) %>% 
-  with(lmerTest::lmer(log2_abund ~ dnaconc + (1|Genus))) %>% 
+  with(lmerTest::lmer(log2_abund ~ dnaratio_ms + (1|Genus))) %>% 
   anova
 
-table2_zymo_equil_samples_ratio %>% 
+Statistic_zymo_log10_samples
+
+Statistic_zymo_equil_samples =
+  table2_zymo_equil_samples_ratio %>% 
   mutate(log2_abund = log2(abund+0.0000001)) %>% 
-  with(lmerTest::lmer(log2_abund ~ dnaconc + (1|Genus))) %>% 
+  with(lmerTest::lmer(log2_abund ~ dnaratio_ms + (1|Genus))) %>% 
   anova
 
-```
-
-```{r DNA cocnetratie sample / DNA cocnetratie mock (ratio) (MOCK), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# Divide the DNA concentration of the mock by the DNA concentration of the sample 
-# inhouse_wetsus_2022
-Inhouse_wetsus_2022_studies_mock_ratio <-
-  Inhouse_wetsus_2022_studies %>% 
-  lapply(function(df) {
-    mock_dna_concentration_inhouse_wetsus_2022 =
-      df %>% 
-      filter(Sample_mock == "mock") %>% 
-      filter(!Sample %in% c("MCZ", "MC23")) %>%  
-      summarise(mean_mock_inhouse_wetsus_2022_dna_conc = mean(DNA_Concentration, na.rm = TRUE)) %>% 
-      pull(mean_mock_inhouse_wetsus_2022_dna_conc)
-    
-      df %>%
-      filter(!(Sample_mock %in% c("blank"))) %>% 
-      select(OTU, Sample, everything()) %>% 
-      mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-      group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-      summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration) / mock_dna_concentration_inhouse_wetsus_2022,
-            .groups = "drop") %>% 
-      distinct() %>% 
-      group_by(Sample, Genus) %>%   
-      summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            .groups = "drop") %>% 
-      arrange(-abund)
-    }) %>% 
-  bind_rows()
-
-# inhouse_wetsus_2023
-Inhouse_wetsus_2023_studies_mock_ratio <-
-  Inhouse_wetsus_2023_studies %>% 
-  lapply(function(df) {
-    mock_dna_concentration_inhouse_wetsus_2023 =
-      df %>% 
-      filter(Sample_mock == "mock") %>% 
-      filter(!Sample %in% c("MCZ", "MC22")) %>%  
-      summarise(mean_mock_inhouse_wetsus_2023_dna_conc = mean(DNA_Concentration, na.rm = TRUE)) %>% 
-      pull(mean_mock_inhouse_wetsus_2023_dna_conc)
-    
-      df %>%
-      filter(Sample_mock != "blank") %>% 
-      select(OTU, Sample, everything()) %>% 
-      mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-      group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-      summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration) / mock_dna_concentration_inhouse_wetsus_2023,
-            .groups = "drop") %>% 
-      distinct() %>% 
-      group_by(Sample, Genus) %>%   
-      summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            .groups = "drop") %>% 
-      arrange(-abund)
-    }) %>% 
-  bind_rows()
-
-# zymo_log10
-Zymo_log10_studies_mock_ratio <-
-  Zymo_log10_studies %>% 
-  lapply(function(df) {
-    mock_dna_concentration_zymo_log10 =
-      df %>% 
-      filter(Sample_mock == "mock",  Sample != "MCZ") %>% 
-      summarise(mean_mock_zymo_log10_dna_conc = mean(DNA_Concentration, na.rm = TRUE)) %>% 
-      pull(mean_mock_zymo_log10_dna_conc)
-    
-      df %>%
-      filter(Sample_mock != "blank") %>% 
-      select(OTU, Sample, everything()) %>% 
-      mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-      group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-      summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration) / mock_dna_concentration_zymo_log10,
-            .groups = "drop") %>% 
-      distinct() %>% 
-      group_by(Sample, Genus) %>%   
-      summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            .groups = "drop") %>% 
-      arrange(-abund)
-    }) %>% 
-  bind_rows()
-
-# zymo_equil
-Zymo_equil_studies_mock_ratio <-
-  Zymo_equil_studies %>% 
-  lapply(function(df) {
-    mock_dna_concentration_zymo_equil =
-      df %>% 
-      filter(Sample_mock == "mock",  !Sample %in% c("MCL1", "MCL2")) %>% 
-      summarise(mean_mock_zymo_equil_dna_conc = mean(DNA_Concentration, na.rm = TRUE)) %>% 
-      pull(mean_mock_zymo_equil_dna_conc)
-    
-      df %>%
-      filter(Sample_mock != "blank") %>% 
-      select(OTU, Sample, everything()) %>% 
-      mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-      group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-      summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration) / mock_dna_concentration_zymo_equil,
-            .groups = "drop") %>% 
-      distinct() %>% 
-      group_by(Sample, Genus) %>%   
-      summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            .groups = "drop") %>% 
-      arrange(-abund)
-    }) %>% 
-  bind_rows()
-```
-
-```{r Top genus, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# Most abundant genus from the samples
-Top_genus_sample_inhouse_wetsus_2022 = 
-  Inhouse_wetsus_2022_studies_mock_ratio %>%
-  filter(!Sample %in% mock_names_inhouse_wetsus_2022$Sample) %>% 
-  group_by(Genus) %>%
-  summarise(mean_abundantie_inhouse_wetsus_2022 = mean(abund)) %>%  
-  arrange(desc(mean_abundantie_inhouse_wetsus_2022)) %>%
-  slice_head(n = 10)
-
-Top_genus_sample_inhouse_wetsus_2023 = 
-  Inhouse_wetsus_2023_studies_mock_ratio %>%
-  filter(!Sample %in% mock_names_inhouse_wetsus_2023$Sample) %>% 
-  group_by(Genus) %>%
-  summarise(mean_abundantie_inhouse_wetsus_2023 = mean(abund)) %>%  
-  arrange(desc(mean_abundantie_inhouse_wetsus_2023)) %>%  
-  slice_head(n = 10) 
-
-Top_genus_sample_zymo_log10 = 
-  Zymo_log10_studies_mock_ratio %>%
-  filter(!Sample %in% mock_names_zymo_log10$Sample) %>% 
-  group_by(Genus) %>%
-  summarise(mean_abundantie_zymo_log10 = mean(abund)) %>% 
-  arrange(desc(mean_abundantie_zymo_log10)) %>% 
-  slice_head(n = 10) 
-
-Top_genus_sample_zymo_equil = 
-  Zymo_equil_studies_mock_ratio %>%
-  filter(!Sample %in% mock_names_zymo_equil$Sample) %>% 
-  group_by(Genus) %>%
-  summarise(mean_abundantie_zymo_equil = mean(abund)) %>% 
-  arrange(desc(mean_abundantie_zymo_equil)) %>%  
-  slice_head(n = 10)  
-```
-
-
-```{r tabel maken voor plot sampel / mock (mock), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# calculate mean, sd and cv across all samples for every Genus
-table_Inhouse_wetsus_2022_mock_ratio = 
-  Inhouse_wetsus_2022_studies_mock_ratio %>% 
-  select(Genus, Sample, abund) %>% 
-  pivot_wider(names_from = Sample, values_from = abund, values_fill = 0) %>%
-  rowwise() %>%   
-  mutate(mean = mean(c_across(where(is.numeric) & !matches(all_mock))),
-         sd = sd(c_across(where(is.numeric) & !matches(all_mock))),
-         CV = sd/mean*100) %>% 
-  arrange(-mean) %>% 
-  ungroup()
-
-table_Inhouse_wetsus_2023_mock_ratio = 
-  Inhouse_wetsus_2023_studies_mock_ratio %>% 
-  select(Genus, Sample, abund) %>% 
-  pivot_wider(names_from = Sample, values_from = abund, values_fill = 0) %>%
-  rowwise() %>%   
-  mutate(mean = mean(c_across(where(is.numeric) & !matches(all_mock))),
-         sd = sd(c_across(where(is.numeric) & !matches(all_mock))),
-         CV = sd/mean*100) %>% 
-  arrange(-mean) %>% 
-  ungroup()
-
-table_Zymo_log10_mock_ratio = 
-  Zymo_log10_studies_mock_ratio %>% 
-  select(Genus, Sample, abund) %>% 
-  pivot_wider(names_from = Sample, values_from = abund, values_fill = 0) %>%
-  rowwise() %>%   
-  mutate(mean = mean(c_across(where(is.numeric) & !matches(all_mock))),
-         sd = sd(c_across(where(is.numeric) & !matches(all_mock))),
-         CV = sd/mean*100) %>% 
-  arrange(-mean) %>% 
-  ungroup()
-
-table_Zymo_equil_mock_ratio = 
-  Zymo_equil_studies_mock_ratio %>% 
-  select(Genus, Sample, abund) %>% 
-  pivot_wider(names_from = Sample, values_from = abund, values_fill = 0) %>%
-  rowwise() %>%   
-  mutate(mean = mean(c_across(where(is.numeric) & !matches(all_mock))),
-         sd = sd(c_across(where(is.numeric) & !matches(all_mock))),
-         CV = sd/mean*100) %>% 
-  arrange(-mean) %>% 
-  ungroup()
-
-# remove mean, sd, cv from table and also remove mock sampels
-# plotting results 
-table2_inhouse_wetsus_2022_mock_ratio =
-  table_Inhouse_wetsus_2022_mock_ratio %>% 
-  filter((Genus %in% Top_genus_sample_inhouse_wetsus_2022$Genus)) %>%
-  select(-mean, -sd, -CV) %>% 
-  pivot_longer(cols = -c(Genus), names_to = "Sample", values_to = "abund") %>% 
-  left_join(., Inhouse_wetsus_2022_studies_mock_ratio %>% 
-              select(Sample, dnaconc) %>% 
-              distinct(), by = "Sample") %>% 
-  filter(!Sample %in% sample_names_inhouse_wetsus_2022$Sample)
-
-table2_inhouse_wetsus_2023_mock_ratio =
-table_Inhouse_wetsus_2023_mock_ratio %>% 
-  filter((Genus %in% Top_genus_sample_inhouse_wetsus_2023$Genus)) %>% 
-  select(-mean, -sd, -CV) %>% 
-  pivot_longer(cols = -c(Genus), names_to = "Sample", values_to = "abund") %>% 
-  left_join(., Inhouse_wetsus_2023_studies_mock_ratio %>% select(Sample, dnaconc) %>% distinct(), by = "Sample") %>% 
-   filter(!Sample %in% sample_names_inhouse_wetsus_2023$Sample)
-
-table2_zymo_log10_mock_ratio =
-table_Zymo_log10_mock_ratio %>% 
-  filter((Genus %in% Top_genus_sample_zymo_log10$Genus)) %>%
-  select(-mean, -sd, -CV) %>% 
-  pivot_longer(cols = -c(Genus), names_to = "Sample", values_to = "abund") %>% 
-  left_join(., Zymo_log10_studies_mock_ratio %>% select(Sample, dnaconc) %>% distinct(), by = "Sample") %>% 
-   filter(!Sample %in% sample_names_zymo_log10$Sample)
-
-table2_zymo_equil_mock_ratio =
-table_Zymo_equil_mock_ratio %>% 
-  filter((Genus %in% Top_genus_sample_zymo_equil$Genus)) %>%
-  select(-mean, -sd, -CV) %>% 
-  pivot_longer(cols = -c(Genus), names_to = "Sample", values_to = "abund") %>% 
-  left_join(., Zymo_equil_studies_mock_ratio %>% select(Sample, dnaconc) %>% distinct(), by = "Sample") %>% 
-  filter(!Sample %in% sample_names_zymo_equil$Sample)
-```
-
-```{r grafiek plotten voor sample / mock (mock), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# plot inhouse_wetsus_2022
-plot_inhouse_wetsus_2022_mock_ratio =
-  ggplot(table2_inhouse_wetsus_2022_mock_ratio, aes(x = dnaconc, y = abund, title)) + 
-  geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  facet_wrap(~Genus) +
-  scale_y_continuous(transform = "log2") +
-  geom_smooth(method = "lm", se = F, color = "grey50") +
-  theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'Ratio in DNA Concentratie (ng/µl)', y = 'Abundantie (%)', title = 'plot_inhouse_wetsus_2022_mock_ratio')
-
-ggsave("figures/plot_inhouse_wetsus_2022_mock_ratio.pdf", plot = plot_inhouse_wetsus_2022_mock_ratio, width = 6, height = 4)
-ggsave("figures/plot_inhouse_wetsus_2022_mock_ratio.jpg", plot = plot_inhouse_wetsus_2022_mock_ratio, width = 6, height = 4)
-
-plot_inhouse_wetsus_2022_mock_ratio
-
-# Plot inhouse_wetsus_2023
-plot_inhouse_wetsus_2023_mock_ratio =
-ggplot(table2_inhouse_wetsus_2023_mock_ratio, aes(x = dnaconc, y = abund)) + 
-  geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  facet_wrap(~Genus) +
-  scale_y_continuous(transform = "log2") +
-  geom_smooth(method = "lm", se = F, color = "grey50") +
-  theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'Ratio in DNA Concentratie (ng/µl)', y = 'Abundantie (%)', title = 'plot_inhouse_wetsus_2023_mock_ratio')
-
-ggsave("figures/plot_inhouse_wetsus_2023_mock_ratio.pdf", plot = plot_inhouse_wetsus_2023_mock_ratio, width = 6, height = 4)
-ggsave("figures/plot_inhouse_wetsus_2023_mock_ratio.jpg", plot = plot_inhouse_wetsus_2023_mock_ratio, width = 6, height = 4)
-
-plot_inhouse_wetsus_2023_mock_ratio
-
-# plot zymo log10
-plot_zymo_log10_mock_ratio =
-ggplot(table2_zymo_log10_mock_ratio, aes(x = dnaconc, y = abund)) + 
-  geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  facet_wrap(~Genus) +
-  scale_y_continuous(transform = "log2") +
-  geom_smooth(method = "lm", se = F, color = "grey50") +
-  theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'Ratio in DNA Concentratie (ng/µl)', y = 'Abundantie (%)', title = 'plot_zymo_log10_mock_ratio')
-
-ggsave("figures/plot_zymo_log10_mock_ratio.pdf", plot = plot_zymo_log10_mock_ratio, width = 6, height = 4)
-ggsave("figures/plot_zymo_log10_mock_ratio.jpg", plot = plot_zymo_log10_mock_ratio, width = 6, height = 4)
-
-plot_zymo_log10_mock_ratio
-
-# plot zymo equil 
-plot_zymo_equil_mock_ratio =
-ggplot(table2_zymo_equil_mock_ratio, aes(x = dnaconc, y = abund)) + 
-  geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  facet_wrap(~Genus) +
-  scale_y_continuous(transform = "log2") +
-  geom_smooth(method = "lm", se = F, color = "grey50") +
-  theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'Ratio in DNA Concentratie (ng/µl)', y = 'Abundantie (%)', title = 'plot_zymo_equil_mock_ratio')
-
-ggsave("figures/plot_zymo_equil_mock_ratio.pdf", plot = plot_zymo_equil_mock_ratio, width = 6, height = 4)
-ggsave("figures/plot_zymo_equil_mock_ratio.jpg", plot = plot_zymo_equil_mock_ratio, width = 6, height = 4)
-
-plot_zymo_equil_mock_ratio
+Statistic_zymo_equil_samples
 ```

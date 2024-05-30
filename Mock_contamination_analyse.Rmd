@@ -14,7 +14,7 @@ options(scipen = 999, digits = 3)
 ```
 
 ```{r setup, eval=TRUE, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
-knitr::opts_knit$set(root.dir = "/Users/stijnteunissen/OneDrive - Wetsus/General/data/")
+knitr::opts_knit$set(root.dir = "/Users/stijnteunissen/OneDrive - Wetsus/General/data/GitHub/microbialanalysis/")
 ```
 
 ```{r install packages, eval=TRUE, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
@@ -81,6 +81,7 @@ library(gridExtra)
 library(patchwork)
 ```
 
+
 ```{r project organization, message=F, echo=F, eval=T, warning=F, include=F, cache=T}
 
 # project name
@@ -88,26 +89,27 @@ proj = "STEU_Contamination_analyse"
 
 # create directories
 if(!dir.exists("figures")){dir.create("figures")}
+if(!dir.exists("input_data")){dir.create("input_data")} 
 if(!dir.exists("output_data")){dir.create("output_data")} 
 if(!dir.exists("scripts")){dir.create("scripts")} 
 ```
 
 ```{r import data, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
 # Script cleaning data
-source("../scripts/tax_clean_updated.R")
+source("scripts/tax_clean_updated.R")
 
 # Wetsus Data 
 
 #creating phyloseq objects for BKIS_proj1_Q16705
-metadata = read.delim("Wetsus_data/BKIS_proj1_Q16705/input_data/BKIS_proj1_Q16705_metadata.tsv", header=T, sep = "\t") 
+metadata = read.delim("input_data/Wetsus_data/BKIS_proj1_Q16705/BKIS_proj1_Q16705_metadata.tsv", header=T, sep = "\t") 
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_BKIS_proj1_Q16705 = qza_to_phyloseq(
-  features = "Wetsus_data/BKIS_proj1_Q16705/input_data/BKIS_16S_515F_926R_08092023_Q16705_BKIS_table.qza",
-  tree = "Wetsus_data/BKIS_proj1_Q16705/input_data/BKIS_16S_515F_926R_08092023_Q16705_BKIS_rooted-tree.qza",
-  taxonomy = "Wetsus_data/BKIS_proj1_Q16705/input_data/BKIS_16S_515F_926R_08092023_Q16705_BKIS_silva-138-99-nb-classifier.qza",
+  features = "input_data/Wetsus_data/BKIS_proj1_Q16705/BKIS_16S_515F_926R_08092023_Q16705_BKIS_table.qza",
+  tree = "input_data/Wetsus_data/BKIS_proj1_Q16705/BKIS_16S_515F_926R_08092023_Q16705_BKIS_rooted-tree.qza",
+  taxonomy = "input_data/Wetsus_data/BKIS_proj1_Q16705/BKIS_16S_515F_926R_08092023_Q16705_BKIS_silva-138-99-nb-classifier.qza",
   )
 sample_data(physeq_BKIS_proj1_Q16705)  = sample_data(metadata)
 
@@ -117,15 +119,15 @@ physeq_BKIS_proj1_Q16705 = tax_clean(physeq_BKIS_proj1_Q16705)
 
 
 #creating phyloseq objects for OBER_proj3_Q15250
-metadata = read.delim("Wetsus_data/OBER_proj3_Q15250/input_data/OBER_proj3_Q15250_metadata.tsv", header=T, sep = "\t") 
+metadata = read.delim("input_data/Wetsus_data/OBER_proj3_Q15250/OBER_proj3_Q15250_metadata.tsv", header=T, sep = "\t") 
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_OBER_proj3_Q15250 = qza_to_phyloseq(
-  features = "Wetsus_data/OBER_proj3_Q15250/input_data/OBER_16S_515F926R_Q15250_20220803_table.qza",
-  tree = "Wetsus_data/OBER_proj3_Q15250/input_data/OBER_16S_515F926R_Q15250_20220803_rooted-tree.qza",
-  taxonomy = "Wetsus_data/OBER_proj3_Q15250/input_data/OBER_16S_515F926R_Q15250_20220803_taxonomy_NB_classifier_SILVA_132_99_16S_515F-926R_QIIME2-2019.10.qza",
+  features = "input_data/Wetsus_data/OBER_proj3_Q15250/OBER_16S_515F926R_Q15250_20220803_table.qza",
+  tree = "input_data/Wetsus_data/OBER_proj3_Q15250/OBER_16S_515F926R_Q15250_20220803_rooted-tree.qza",
+  taxonomy = "input_data/Wetsus_data/OBER_proj3_Q15250/OBER_16S_515F926R_Q15250_20220803_taxonomy_NB_classifier_SILVA_132_99_16S_515F-926R_QIIME2-2019.10.qza",
   )
 sample_data(physeq_OBER_proj3_Q15250)  = sample_data(metadata)
 
@@ -134,15 +136,15 @@ sample_data(physeq_OBER_proj3_Q15250)$read_count=sample_sums(physeq_OBER_proj3_Q
 physeq_OBER_proj3_Q15250 = tax_clean(physeq_OBER_proj3_Q15250)
 
 #creating phyloseq objects for OSOJ_proj3_Q16374
-metadata = read.delim("Wetsus_data/OSOJ_proj3_Q16374_16S/input_data/OSOJ_proj3_Q16374_metadata.tsv", header=T, sep = "\t") 
+metadata = read.delim("input_data/Wetsus_data/OSOJ_proj3_Q16374_16S/OSOJ_proj3_Q16374_metadata.tsv", header=T, sep = "\t") 
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_OSOJ_proj3_Q16374 = qza_to_phyloseq(
-  features = "Wetsus_data/OSOJ_proj3_Q16374_16S/input_data/OSOJ_16S_515F_926R_20230425_Q16347_table.qza",
-  tree = "Wetsus_data/OSOJ_proj3_Q16374_16S/input_data/OSOJ_16S_515F_926R_20230425_Q16347_rooted-tree.qza",
-  taxonomy = "Wetsus_data/OSOJ_proj3_Q16374_16S/input_data/OSOJ_16S_515F_926R_20230425_Q16347_silva-138-99-nb-classifier.qza",
+  features = "input_data/Wetsus_data/OSOJ_proj3_Q16374_16S/OSOJ_16S_515F_926R_20230425_Q16347_table.qza",
+  tree = "input_data/Wetsus_data/OSOJ_proj3_Q16374_16S/OSOJ_16S_515F_926R_20230425_Q16347_rooted-tree.qza",
+  taxonomy = "input_data/Wetsus_data/OSOJ_proj3_Q16374_16S/OSOJ_16S_515F_926R_20230425_Q16347_silva-138-99-nb-classifier.qza",
   )
 sample_data(physeq_OSOJ_proj3_Q16374)  = sample_data(metadata)
 
@@ -151,15 +153,15 @@ sample_data(physeq_OSOJ_proj3_Q16374)$read_count=sample_sums(physeq_OSOJ_proj3_Q
 physeq_OSOJ_proj3_Q16374 = tax_clean(physeq_OSOJ_proj3_Q16374)
 
 #creating phyloseq objects for OSOJ_proj4_Q17230
-metadata = read.delim("Wetsus_data/OSOJ_proj4_Q17230/OSOJ_16S_515F_926R_02202024_Q17230_OSOJ/OSOJ_proj4_Q17230_metadata.tsv", header=T, sep = "\t") 
+metadata = read.delim("input_data/Wetsus_data/OSOJ_proj4_Q17230/OSOJ_proj4_Q17230_metadata.tsv", header=T, sep = "\t") 
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_OSOJ_proj4_Q17230 = qza_to_phyloseq(
-  features = "Wetsus_data/OSOJ_proj4_Q17230/OSOJ_16S_515F_926R_02202024_Q17230_OSOJ/OSOJ_16S_515F_926R_02202024_Q17230_OSOJ_table.qza",
-  tree = "Wetsus_data/OSOJ_proj4_Q17230/OSOJ_16S_515F_926R_02202024_Q17230_OSOJ/OSOJ_16S_515F_926R_02202024_Q17230_OSOJ_rooted-tree.qza",
-  taxonomy = "Wetsus_data/OSOJ_proj4_Q17230/OSOJ_16S_515F_926R_02202024_Q17230_OSOJ/OSOJ_16S_515F_926R_02202024_Q17230_OSOJ_silva-138-99-nb-classifier.qza",
+  features = "input_data/Wetsus_data/OSOJ_proj4_Q17230/OSOJ_16S_515F_926R_02202024_Q17230_OSOJ_table.qza",
+  tree = "input_data/Wetsus_data/OSOJ_proj4_Q17230/OSOJ_16S_515F_926R_02202024_Q17230_OSOJ_rooted-tree.qza",
+  taxonomy = "input_data/Wetsus_data/OSOJ_proj4_Q17230/OSOJ_16S_515F_926R_02202024_Q17230_OSOJ_silva-138-99-nb-classifier.qza",
   )
 sample_data(physeq_OSOJ_proj4_Q17230)  = sample_data(metadata)
 
@@ -168,15 +170,15 @@ sample_data(physeq_OSOJ_proj4_Q17230)$read_count=sample_sums(physeq_OSOJ_proj4_Q
 physeq_OSOJ_proj4_Q17230 = tax_clean(physeq_OSOJ_proj4_Q17230)
 
 #creating phyloseq objects for OSOJ_proj5_Q17229
-metadata = read.delim("Wetsus_data/OSOJ_proj5_Q17229/OSOJ_16S_515F_926R_02202024_Q17229_OSOJ/OSOJ_proj5_Q17229_metadata.tsv", header=T, sep = "\t") 
+metadata = read.delim("input_data/Wetsus_data/OSOJ_proj5_Q17229/OSOJ_proj5_Q17229_metadata.tsv", header=T, sep = "\t") 
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_OSOJ_proj5_Q17229 = qza_to_phyloseq(
-  features = "Wetsus_data/OSOJ_proj5_Q17229/OSOJ_16S_515F_926R_02202024_Q17229_OSOJ/OSOJ_16S_515F_926R_02202024_Q17229_OSOJ_table.qza",
-  tree = "Wetsus_data/OSOJ_proj5_Q17229/OSOJ_16S_515F_926R_02202024_Q17229_OSOJ/OSOJ_16S_515F_926R_02202024_Q17229_OSOJ_rooted-tree.qza",
-  taxonomy = "Wetsus_data/OSOJ_proj5_Q17229/OSOJ_16S_515F_926R_02202024_Q17229_OSOJ/OSOJ_16S_515F_926R_02202024_Q17229_OSOJ_silva-138-99-nb-classifier.qza",
+  features = "input_data/Wetsus_data/OSOJ_proj5_Q17229/OSOJ_16S_515F_926R_02202024_Q17229_OSOJ_table.qza",
+  tree = "input_data/Wetsus_data/OSOJ_proj5_Q17229/OSOJ_16S_515F_926R_02202024_Q17229_OSOJ_rooted-tree.qza",
+  taxonomy = "input_data/Wetsus_data/OSOJ_proj5_Q17229/OSOJ_16S_515F_926R_02202024_Q17229_OSOJ_silva-138-99-nb-classifier.qza",
   )
 sample_data(physeq_OSOJ_proj5_Q17229)  = sample_data(metadata)
 
@@ -185,15 +187,15 @@ sample_data(physeq_OSOJ_proj5_Q17229)$read_count=sample_sums(physeq_OSOJ_proj5_Q
 physeq_OSOJ_proj5_Q17229 = tax_clean(physeq_OSOJ_proj5_Q17229)
 
 #creating phyloseq objects for SHSU_proj1_Q17228
-metadata = read.delim("Wetsus_data/SHSU_proj1_Q17228/SHSU_16S_515F_926R_02202024_Q17228_SHSU/SHSU_proj1_Q17228_metadata.tsv", header=T, sep = "\t") 
+metadata = read.delim("input_data/Wetsus_data/SHSU_proj1_Q17228/SHSU_proj1_Q17228_metadata.tsv", header=T, sep = "\t") 
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_SHSU_proj1_Q17228 = qza_to_phyloseq(
-  features = "Wetsus_data/SHSU_proj1_Q17228/SHSU_16S_515F_926R_02202024_Q17228_SHSU/SHSU_16S_515F_926R_02202024_Q17228_SHSU_table.qza",
-  tree = "Wetsus_data/SHSU_proj1_Q17228/SHSU_16S_515F_926R_02202024_Q17228_SHSU/SHSU_16S_515F_926R_02202024_Q17228_SHSU_rooted-tree.qza",
-  taxonomy = "Wetsus_data/SHSU_proj1_Q17228/SHSU_16S_515F_926R_02202024_Q17228_SHSU/SHSU_16S_515F_926R_02202024_Q17228_SHSU_silva-138-99-nb-classifier.qza",
+  features = "input_data/Wetsus_data/SHSU_proj1_Q17228/SHSU_16S_515F_926R_02202024_Q17228_SHSU_table.qza",
+  tree = "input_data/Wetsus_data/SHSU_proj1_Q17228/SHSU_16S_515F_926R_02202024_Q17228_SHSU_rooted-tree.qza",
+  taxonomy = "input_data/Wetsus_data/SHSU_proj1_Q17228/SHSU_16S_515F_926R_02202024_Q17228_SHSU_silva-138-99-nb-classifier.qza",
   )
 sample_data(physeq_SHSU_proj1_Q17228)  = sample_data(metadata)
 
@@ -202,15 +204,15 @@ sample_data(physeq_SHSU_proj1_Q17228)$read_count=sample_sums(physeq_SHSU_proj1_Q
 physeq_SHSU_proj1_Q17228 = tax_clean(physeq_SHSU_proj1_Q17228)
 
 #creating phyloseq objects for YLUO_projx_Q12374
-metadata = read.delim("Wetsus_data/YLUO_projx_Q12374//YLUO_projx_Q12374_49_89_metadata.tsv", header=T, sep = "\t") 
+metadata = read.delim("input_data/Wetsus_data/YLUO_projx_Q12374/YLUO_projx_Q12374_49_89_metadata.tsv", header=T, sep = "\t") 
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_YLUO_projx_Q12374 = qza_to_phyloseq(
-  features = "Wetsus_data/YLUO_projx_Q12374/YLUO_BAC_49_89_20200409_table.qza",
-  tree = "Wetsus_data/YLUO_projx_Q12374/YLUO_BAC_49_89_20200409_rooted-tree.qza",
-  taxonomy = "Wetsus_data/YLUO_projx_Q12374//YLUO_BAC_49_89_20200409_taxonomy_NB_Silva132_99-338F-806R_classifier.qza",
+  features = "input_data/Wetsus_data/YLUO_projx_Q12374/YLUO_BAC_49_89_20200409_table.qza",
+  tree = "input_data/Wetsus_data/YLUO_projx_Q12374/YLUO_BAC_49_89_20200409_rooted-tree.qza",
+  taxonomy = "input_data/Wetsus_data/YLUO_projx_Q12374//YLUO_BAC_49_89_20200409_taxonomy_NB_Silva132_99-338F-806R_classifier.qza",
   )
 sample_data(physeq_YLUO_projx_Q12374)  = sample_data(metadata)
 
@@ -219,15 +221,15 @@ sample_data(physeq_YLUO_projx_Q12374)$read_count=sample_sums(physeq_YLUO_projx_Q
 physeq_YLUO_projx_Q12374 = tax_clean(physeq_YLUO_projx_Q12374)
 
 #creating phyloseq objects for YXIN_proj1_Q16712
-metadata = read.delim("Wetsus_data/YXIN_proj1_Q16712/input_data/YXIN_proj1_Q16712_metadata.tsv", header=T, sep = "\t") 
+metadata = read.delim("input_data/Wetsus_data/YXIN_proj1_Q16712/YXIN_proj1_Q16712_metadata.tsv", header=T, sep = "\t") 
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_YXIN_proj1_Q16712 = qza_to_phyloseq(
-  features = "Wetsus_data/YXIN_proj1_Q16712/input_data/XYIN_16S_515F_926R_07092023_Q16712_XYIN_table.qza",
-  tree = "Wetsus_data/YXIN_proj1_Q16712/input_data/XYIN_16S_515F_926R_07092023_Q16712_XYIN_rooted-tree.qza",
-  taxonomy = "Wetsus_data/YXIN_proj1_Q16712/input_data/XYIN_16S_515F_926R_07092023_Q16712_XYIN_silva-138-99-nb-classifier.qza",
+  features = "input_data/Wetsus_data/YXIN_proj1_Q16712/XYIN_16S_515F_926R_07092023_Q16712_XYIN_table.qza",
+  tree = "input_data/Wetsus_data/YXIN_proj1_Q16712/XYIN_16S_515F_926R_07092023_Q16712_XYIN_rooted-tree.qza",
+  taxonomy = "input_data/Wetsus_data/YXIN_proj1_Q16712/XYIN_16S_515F_926R_07092023_Q16712_XYIN_silva-138-99-nb-classifier.qza",
   )
 sample_data(physeq_YXIN_proj1_Q16712)  = sample_data(metadata)
 
@@ -236,15 +238,15 @@ sample_data(physeq_YXIN_proj1_Q16712)$read_count=sample_sums(physeq_YXIN_proj1_Q
 physeq_YXIN_proj1_Q16712 = tax_clean(physeq_YXIN_proj1_Q16712)
 
 #creating phyloseq objects for KJOH_proj04_Q17535
-metadata = read.delim("Wetsus_data/KJOH_proj04_Q17535/KJOH_proj04_Q17535_metadata.tsv", header=T, sep = "\t")
+metadata = read.delim("input_data/Wetsus_data/KJOH_proj04_Q17535/KJOH_proj04_Q17535_metadata.tsv", header=T, sep = "\t")
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_KJOH_proj04_Q17535 = qza_to_phyloseq(
-  features = "Wetsus_data/KJOH_proj04_Q17535/KJOH_16S_515F_926R_08052024_Q17535_full_KJOH_table.qza",
-  tree = "Wetsus_data/KJOH_proj04_Q17535/KJOH_16S_515F_926R_08052024_Q17535_full_KJOH_rooted-tree.qza",
-  taxonomy = "Wetsus_data/KJOH_proj04_Q17535/KJOH_16S_515F_926R_08052024_Q17535_full_KJOH_silva-138-99-nb-classifier.qza",
+  features = "input_data/Wetsus_data/KJOH_proj04_Q17535/KJOH_16S_515F_926R_08052024_Q17535_full_KJOH_table.qza",
+  tree = "input_data/Wetsus_data/KJOH_proj04_Q17535/KJOH_16S_515F_926R_08052024_Q17535_full_KJOH_rooted-tree.qza",
+  taxonomy = "input_data/Wetsus_data/KJOH_proj04_Q17535/KJOH_16S_515F_926R_08052024_Q17535_full_KJOH_silva-138-99-nb-classifier.qza",
   )
 sample_data(physeq_KJOH_proj04_Q17535)  = sample_data(metadata)
 
@@ -253,15 +255,15 @@ sample_data(physeq_KJOH_proj04_Q17535)$read_count=sample_sums(physeq_KJOH_proj04
 physeq_KJOH_proj04_Q17535 = tax_clean(physeq_KJOH_proj04_Q17535)
 
 #creating phyloseq objects for KJOH_proj05_Q17536
-metadata = read.delim("Wetsus_data/KJOH_proj05_Q17536/KJOH_proj05_Q17536_metadata.tsv", header=T, sep = "\t")
+metadata = read.delim("input_data/Wetsus_data/KJOH_proj05_Q17536/KJOH_proj05_Q17536_metadata.tsv", header=T, sep = "\t")
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_KJOH_proj05_Q17536 = qza_to_phyloseq(
-  features = "Wetsus_data/KJOH_proj05_Q17536/KJOH_16S_515F_926R_08052024_Q17536_full_KJOH_table.qza",
-  tree = "Wetsus_data/KJOH_proj05_Q17536/KJOH_16S_515F_926R_08052024_Q17536_full_KJOH_rooted-tree.qza",
-  taxonomy = "Wetsus_data/KJOH_proj05_Q17536/KJOH_16S_515F_926R_08052024_Q17536_full_KJOH_silva-138-99-nb-classifier.qza",
+  features = "input_data/Wetsus_data/KJOH_proj05_Q17536/KJOH_16S_515F_926R_08052024_Q17536_full_KJOH_table.qza",
+  tree = "input_data/Wetsus_data/KJOH_proj05_Q17536/KJOH_16S_515F_926R_08052024_Q17536_full_KJOH_rooted-tree.qza",
+  taxonomy = "input_data/Wetsus_data/KJOH_proj05_Q17536/KJOH_16S_515F_926R_08052024_Q17536_full_KJOH_silva-138-99-nb-classifier.qza",
   )
 sample_data(physeq_KJOH_proj05_Q17536)  = sample_data(metadata)
 
@@ -270,15 +272,15 @@ sample_data(physeq_KJOH_proj05_Q17536)$read_count=sample_sums(physeq_KJOH_proj05
 physeq_KJOH_proj05_Q17536 = tax_clean(physeq_KJOH_proj05_Q17536)
 
 #creating phyloseq objects for KJOH_proj06_Q17537
-metadata = read.delim("Wetsus_data/KJOH_proj06_Q17537/KJOH_proj06_Q17537_metadata.tsv", header=T, sep = "\t")
+metadata = read.delim("input_data/Wetsus_data/KJOH_proj06_Q17537/KJOH_proj06_Q17537_metadata.tsv", header=T, sep = "\t")
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_KJOH_proj06_Q17537 = qza_to_phyloseq(
-  features = "Wetsus_data/KJOH_proj06_Q17537/KJOH_16S_515F_926R_08052024_Q17537_full_KJOH_table.qza",
-  tree = "Wetsus_data/KJOH_proj06_Q17537/KJOH_16S_515F_926R_08052024_Q17537_full_KJOH_rooted-tree.qza",
-  taxonomy = "Wetsus_data/KJOH_proj06_Q17537/KJOH_16S_515F_926R_08052024_Q17537_full_KJOH_silva-138-99-nb-classifier.qza",
+  features = "input_data/Wetsus_data/KJOH_proj06_Q17537/KJOH_16S_515F_926R_08052024_Q17537_full_KJOH_table.qza",
+  tree = "input_data/Wetsus_data/KJOH_proj06_Q17537/KJOH_16S_515F_926R_08052024_Q17537_full_KJOH_rooted-tree.qza",
+  taxonomy = "input_data/Wetsus_data/KJOH_proj06_Q17537/KJOH_16S_515F_926R_08052024_Q17537_full_KJOH_silva-138-99-nb-classifier.qza",
   )
 sample_data(physeq_KJOH_proj06_Q17537)  = sample_data(metadata)
 
@@ -288,15 +290,15 @@ physeq_KJOH_proj06_Q17537 = tax_clean(physeq_KJOH_proj06_Q17537)
 
 # External data
 #creating phyloseq objects for PRJEB34118
-metadata = read.delim("External_data/PRJEB34118/PRJEB34118_metadata.tsv", header=T, sep = "\t")
+metadata = read.delim("input_data/External_data/PRJEB34118/PRJEB34118_metadata.tsv", header=T, sep = "\t")
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_PRJEB34118 = qza_to_phyloseq(
-  features = "External_data/PRJEB34118/PRJEB34118_table.qza",
-  tree = "External_data/PRJEB34118/PRJEB34118_rooted-tree.qza",
-  taxonomy = "External_data/PRJEB34118/PRJEB34118_silva-138-99-nb-classifier.qza",
+  features = "input_data/External_data/PRJEB34118/PRJEB34118_table.qza",
+  tree = "input_data/External_data/PRJEB34118/PRJEB34118_rooted-tree.qza",
+  taxonomy = "input_data/External_data/PRJEB34118/PRJEB34118_silva-138-99-nb-classifier.qza",
   )
 sample_data(physeq_PRJEB34118)  = sample_data(metadata)
 
@@ -305,15 +307,15 @@ sample_data(physeq_PRJEB34118)$read_count=sample_sums(physeq_PRJEB34118)
 physeq_PRJEB34118 = tax_clean(physeq_PRJEB34118)
 
 #creating phyloseq objects for PRJNA862376
-metadata = read.delim("External_data/PRJNA862376//PRJNA862376_metadata.tsv", header=T, sep = "\t")
+metadata = read.delim("input_data/External_data/PRJNA862376//PRJNA862376_metadata.tsv", header=T, sep = "\t")
 colnames(metadata)[1] =  gsub(colnames(metadata)[1], pattern = "X.", "SampleID")
 metadata = sample_data(metadata)
 sample_names(metadata) = metadata$SampleID
 
 physeq_PRJNA862376 = qza_to_phyloseq(
-  features = "External_data/PRJNA862376/PRJNA862376_table.qza",
-  tree = "External_data/PRJNA862376/PRJNA862376_rooted-tree.qza",
-  taxonomy = "External_data/PRJNA862376/PRJNA862376_silva-138-99-nb-classifier.qza",
+  features = "input_data/External_data/PRJNA862376/PRJNA862376_table.qza",
+  tree = "input_data/External_data/PRJNA862376/PRJNA862376_rooted-tree.qza",
+  taxonomy = "input_data/External_data/PRJNA862376/PRJNA862376_silva-138-99-nb-classifier.qza",
   )
 sample_data(physeq_PRJNA862376)  = sample_data(metadata)
 
@@ -864,7 +866,9 @@ bar_plot_all_mock_studies =
                                    axis.text.y = element_text(size = 14),
                                    strip.text = element_text(size = 8),
                                    legend.text = element_text(size = 15),
-                                   legend.title = element_text(size = 16))
+                                   legend.title = element_text(size = 16),
+                                   axis.title.x = element_text(size = 14),
+                                   axis.title.y = element_text(size = 14),)
 
 ggsave("figures/bar_plot_all_mock_studies.pdf", plot = bar_plot_all_mock_studies, width = 18, height = 10)
 ggsave("figures/bar_plot_all_mock_studies.jpg", plot = bar_plot_all_mock_studies, width = 18, height = 10)
@@ -933,11 +937,11 @@ measured_vs_theoretical_inhouse_wetsus_2022 =
              y = sum_abund_inhouse_wetsus_2022)) +
   geom_point(aes(color = Sample, alpha = Genus), alpha = 0.5) +
   geom_smooth(method = "lm", se = F, aes(group = Sample, color = Sample), alpha = 0.5) +
-  geom_mark_ellipse(aes(group = Genus, label = Genus), label.fontsize = 9, 
+  geom_mark_ellipse(aes(group = Genus, label = Genus), label.fontsize = 11, 
                     expand = unit(3, "mm")) +
   labs(title = "Inhouse wetsus 2022",
-       x = "Theoretical Abundance",
-       y = "Measured Abundance") +
+       x = "Theoretical Abundance (%)",
+       y = "Measured Abundance (%)") +
   theme_minimal() +
   theme(legend.position = "right") +
   ylim(0, NA)
@@ -967,11 +971,11 @@ measured_vs_theoretical_inhouse_wetsus_2023 =
   ggplot(aes(x = Inhouse2023_abund, 
              y = sum_abund_inhouse_wetsus_2023)) +
   geom_point(aes(color = Sample, alpha = Genus), alpha = 0.5) +
-  geom_mark_ellipse(aes(group = Genus, label = Genus), label.fontsize = 9, 
+  geom_mark_ellipse(aes(group = Genus, label = Genus), label.fontsize = 11, 
                     expand = unit(3, "mm")) +
   labs(title = "Inhouse wetsus 2023",
-       x = "Theoretical Abundance",
-       y = "Measured Abundance") +
+       x = "Theoretical Abundance (%)",
+       y = "Measured Abundance (%)") +
   theme_minimal() +
   theme(legend.position = "right") +
   ylim(-5, NA) +
@@ -1005,11 +1009,11 @@ measured_vs_theoretical_zumo_log10 =
   scale_x_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
                 labels = scales::trans_format("log10", scales::math_format(10^.x)),
                 limits = c(0.00001, 100)) +
-  geom_mark_ellipse(aes(group = Genus, label = Genus), label.fontsize = 9, 
+  geom_mark_ellipse(aes(group = Genus, label = Genus), label.fontsize = 11, 
                     expand = unit(3, "mm")) +
   labs(title = "Zymo_log10",
-       x = "Theoretical Abundance",
-       y = "Measured Abundance") +
+       x = "Theoretical Abundance (%)",
+       y = "Measured Abundance (%)") +
   theme_minimal() +
   theme(legend.position = "right") +
   geom_smooth(method = "lm", se = FALSE, aes(group = Sample, color = Sample), alpha = 0.5)
@@ -1037,16 +1041,16 @@ measured_vs_theoretical_zymo_equil =
              y = sum_abund_zymo_equil)) +
   geom_mark_ellipse(aes(group = Genus, label = Genus), 
                     label.fontsize = 9, 
-                    expand = unit(2, "mm")) +
+                    expand = unit(2, "mm"),) +
   geom_smooth(method = "lm", se = F, aes(group = Sample, color = Sample), alpha = 0.5) +
   geom_point(aes(color = Sample, alpha = Genus), alpha = 0.5) +
   labs(title = "Zymo_equil",
-       x = "Theoretical Abundance",
-       y = "Measured Abundance") +
+       x = "Theoretical Abundance (%)",
+       y = "Measured Abundance (%)") +
   theme_minimal() +
   theme(legend.position = "right") +
-  ylim(-5, NA) +
-  xlim(0, 20)
+  xlim(0, 30) +
+  ylim(-5, 50)
 
 ggsave("figures/measured_vs_theoretical_zymo_equil.pdf", plot = measured_vs_theoretical_zymo_equil, width = 8, height = 5)
 ggsave("figures/measured_vs_theoretical_zymo_equil.jpg", plot = measured_vs_theoretical_zymo_equil, width = 8, height = 5)
@@ -1326,11 +1330,11 @@ all_studies_plot_prevalence_median_prevalence =
   all_studies_list %>%
   filter(sample_char %in% c("prevalence", "median_abund")) %>% 
   ggplot(aes(x=value, y=Abundance, shape = sample_char)) +
-  #geom_point(aes(color = study)) +
+  geom_point(aes(color = study), size = 1.1, alpha = 0.7) +
   ylim(0, 1.5) +
   stat_smooth(aes(group = study, color = study), method = "lm", se = T) +
   facet_wrap(~sample_char, nrow = 2, ncol = 4, scales = "free") +
-  labs(y="Percentage mock OTU in sample")
+  labs(y="Percentage Sample ASV in mock community")
 
 ggsave("figures/prevalence_median_prevalence.pdf", plot = all_studies_plot_prevalence_median_prevalence, width = 9, height = 5)
 ggsave("figures/prevalence_median_prevalence.jpg", plot = all_studies_plot_prevalence_median_prevalence, width = 9, height = 5)
@@ -1338,14 +1342,14 @@ ggsave("figures/prevalence_median_prevalence.jpg", plot = all_studies_plot_preva
 all_studies_plot_prevalence_median_prevalence
 
 # plot prevalaence 
-all_studies_plot_previalence =
+all_studies_plot_prevalence =
   all_studies_list %>% 
   ggplot(aes(x=value, y=Abundance, shape = sample_char)) +
-  #geom_point(aes(color = study), size = 1.1, alpha = 0.7) +
+  geom_point(aes(color = study), size = 1.1, alpha = 0.7) +
   ylim(0, 1.5) +
   stat_smooth(aes(group = study, color = study), method = "lm", se = T) +
   facet_wrap(~sample_char, nrow = 2, ncol = 4, scales = "free") +
-  labs(y="Percentage Sample OTU in mock community")
+  labs(y="Percentage Sample ASV in mock community")
 
 ggsave("figures/prevalence.pdf", plot = all_studies_plot_prevalence, width = 9, height = 5)
 ggsave("figures/prevalence.jpg", plot = all_studies_plot_prevalence, width = 9, height = 5)
@@ -1358,7 +1362,7 @@ all_studies_plot_prevalence
 # overall linear regression test (Study random variable)
 statistic_all_studies =
   all_studies_list %>% 
-  filter(sample_char == "median_abund") %>% 
+  filter(sample_char == "median_abund") %>%  
   with(lm(Abundance ~ value * study))
 
 # anova
@@ -1409,7 +1413,7 @@ ratio_abund_dna_char_plot_prevalence_median =
   geom_point(aes(color = dna_char, shape = sample_char)) +
   geom_smooth(method="lm", se=T) +
   scale_x_log10() +
-  labs(x = "Ratio DNA concentration (mock/sample)", y = "trend") +
+  labs(x = "Ratio DNA concentration (mock/sample)", y = "Trend") +
   facet_grid(rows = vars(dna_char), cols = vars(sample_char))
 
 ggsave("figures/ratio_abund_dna_char_plot_prevalence_median.pdf", 
@@ -1425,7 +1429,7 @@ diff_abund_dna_char_plot_prevalence_median =
   ggplot(aes(x = dna_char_diff, y = value.trend)) +
   geom_point(aes(color = dna_char, shape = sample_char)) +
   geom_smooth(method="lm", se=T) +
-  labs(x = "Difference DNA concentration (mock-sample) (ng/µl)", y = "trend") +
+  labs(x = "Difference DNA concentration (mock-sample) (ng/µl)", y = "Trend") +
   facet_grid(rows = vars(dna_char), cols = vars(sample_char))
 
 ggsave("figures/diff_abund_dna_char_plot_prevalence_median.pdf", 
@@ -1441,7 +1445,7 @@ ratio_abund_dna_char_plot =
   geom_point(aes(color = dna_char, shape = sample_char)) +
   geom_smooth(method="lm", se=T) +
   scale_x_log10() +
-  labs(x = "Ratio DNA concentration (mock/sample)", y = "trend") +
+  labs(x = "Ratio DNA concentration (mock/sample)", y = "Trend") +
   facet_grid(rows = vars(dna_char), cols = vars(sample_char))
 
 ggsave("figures/ratio_abund_dna_char_plot.pdf", plot = ratio_abund_dna_char_plot, width = 9, height = 5)
@@ -1454,7 +1458,7 @@ diff_abund_dna_char_plot =
   ggplot(aes(x = dna_char_diff, y = value.trend)) +
   geom_point(aes(color = dna_char, shape = sample_char)) +
   geom_smooth(method="lm", se=T) +
-  labs(x = "Difference DNA concentration (mock-sample) (ng/µl)", y = "trend") +
+  labs(x = "Difference DNA concentration (mock-sample) (ng/µl)", y = "Trend") +
   facet_grid(rows = vars(dna_char), cols = vars(sample_char))
 
 ggsave("figures/diff_abund_dna_char_plot.pdf", plot = diff_abund_dna_char_plot, width = 9, height = 5)
@@ -1493,554 +1497,4 @@ anova(abund_dna_char_diff)
 
 # pairwise comparison of slopes among sample characters
 emmeans::emtrends(abund_dna_char_diff, pairwise ~ sample_char, var = "dna_char_diff")
-```
-
-
-
-# codes die ik niet voor mijn verslag ga gebruiken
-
-
-```{r unique mock, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# mock samples that are not include in de calculation of mean, sd and CV
-all_mock <- c("MC22", "MC23", "MCL1", "MCL2", "MCZ", "OSOJ.13", "OSOJ.1.13", "OSOJ.2.5", "OSOJ.2.5", "SHSU.5", "LUO.89", "YXIN32")
-
-# collection of mock species included in mock
-unique_mock_inhouse_wetsus_2022_species =  
-  tibble(Genus = c("Serratia","Massilia","Brevibacillus","Bacillus","Weizmannia","Lysinibacillus","Peribacillus","Bordetella"  ,"Sphingobium","Streptomyces","Burkholderia","Burkholderia-Caballeronia-Paraburkholderia","Genus of Bacilli"))
-
-unique_mock_inhouse_wetsus_2023_species =
-  tibble(Genus = c("Brevibacillus","Weizmannia","Lysinibacillus","Bacillus","Sphingobium","Serratia","Streptomyces","Burkholderia","Burkholderia-Caballeronia-Paraburkholderia","Novosphingobium","Genus of Enterobacteriaceae"))
-
-unique_mock_zymo_log10_species = 
-  tibble(Genus = c("Listeria","Pseudomonas","Bacillus","Saccharomyces","Escherichia-Shigella","Salmonella","Lactobacillus","Enterococcus","Cryptococcus","Staphylococcus","Genus of Enterococcaceae"))
-
-unique_mock_zymo_equil_species = 
-  tibble(Genus = c("Listeria","Pseudomonas","Bacillus","Saccharomyces","Escherichia-Shigella","Salmonella","Lactobacillus","Enterococcus","Cryptococcus","Staphylococcus"))
-```
-
-```{r DNA concentration sample / DNA concentration mock (ratio) (sampels), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# Divide the DNA concentration of the mock by the DNA concentration of the sample
-
-# inhouse_wetsus_2022
-Inhouse_wetsus_2022_studies_samples_dnadiff <-
-  Inhouse_wetsus_2022_studies %>% 
-  lapply(function(df) {
-    mock_dna_concentration_inhouse_wetsus_2022 =
-      df %>% 
-      filter(Sample_mock == "mock") %>% 
-      filter(!Sample %in% c("MCZ", "MC23")) %>% 
-      summarise(mean_mock_inhouse_wetsus_2022_dna_conc = mean(DNA_Concentration, na.rm = TRUE)) %>% 
-      pull(mean_mock_inhouse_wetsus_2022_dna_conc)
-    
-      df %>%
-      filter(Sample_mock == "sample") %>% 
-      select(OTU, Sample, everything()) %>% 
-      mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-      group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-      summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration),
-            .groups = "drop") %>% 
-      distinct() %>% 
-      group_by(study, Sample, Genus) %>%   
-      summarise(abund = sum(mean_abundance),
-                readcount = mean(mean_read_count),
-                dnaconc = mean(mean_dna_conc),
-                dnadiff_ms = mock_dna_concentration_inhouse_wetsus_2022 - dnaconc,
-                .groups = "drop") %>%  
-      arrange(-abund)
-    }) %>% 
-  bind_rows()
-
-# inhouse_wetsus_2023
-Inhouse_wetsus_2023_studies_samples_dnadiff <-
-  Inhouse_wetsus_2023_studies %>% 
-  lapply(function(df) {
-    mock_dna_concentration_inhouse_wetsus_2023 =
-      df %>% 
-      filter(Sample_mock == "mock") %>% 
-      filter(!Sample %in% c("MCZ")) %>%  
-      summarise(mean_mock_inhouse_wetsus_2023_dna_conc = mean(DNA_Concentration, na.rm = TRUE)) %>% 
-      pull(mean_mock_inhouse_wetsus_2023_dna_conc)
-    
-      df %>%
-      filter(Sample_mock == "sample") %>% 
-      select(OTU, Sample, everything()) %>% 
-      mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-      group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-      summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration),
-            .groups = "drop") %>% 
-      distinct() %>% 
-      group_by(study, Sample, Genus) %>%   
-      summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            dnadiff_ms = mock_dna_concentration_inhouse_wetsus_2023 - dnaconc,
-            .groups = "drop") %>% 
-      arrange(-abund)
-    }) %>% 
-  bind_rows()
-
-# zymo_log10
-Zymo_log10_studies_samples_dnadiff <-
-  Zymo_log10_studies %>% 
-  lapply(function(df) {
-    mock_dna_concentration_zymo_log10 =
-      df %>% 
-      filter(Sample_mock == "mock") %>% 
-      summarise(mean_mock_zymo_log10_dna_conc = mean(DNA_Concentration, na.rm = TRUE)) %>% 
-      pull(mean_mock_zymo_log10_dna_conc)
-    
-      df %>%
-      filter(Sample_mock == "sample") %>% 
-      select(OTU, Sample, everything()) %>% 
-      mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-      group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-      summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration),
-            .groups = "drop") %>% 
-      distinct() %>% 
-      group_by(study, Sample, Genus) %>%   
-      summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            dnadiff_ms = mock_dna_concentration_zymo_log10 - dnaconc,
-            .groups = "drop") %>% 
-      arrange(-abund)
-    }) %>% 
-  bind_rows()
-
-# zymo_equil
-Zymo_equil_studies_samples_dnadiff <-
-  Zymo_equil_studies %>% 
-  lapply(function(df) {
-    mock_dna_concentration_zymo_equil =
-      df %>% 
-      filter(Sample_mock == "mock",  !Sample %in% c("MCL1", "MCL2")) %>% 
-      summarise(mean_mock_zymo_equil_dna_conc = mean(DNA_Concentration, na.rm = TRUE)) %>% 
-      pull(mean_mock_zymo_equil_dna_conc)
-    
-      df %>%
-      filter(Sample_mock == "sample") %>% 
-      select(OTU, Sample, everything()) %>% 
-      mutate(Sample = if_else(str_sub(Sample, -1)== "C", str_replace(Sample, "C$", ""), Sample)) %>% 
-      group_by(across(-c(SampleID, Abundance, read_count))) %>% 
-      summarise(mean_abundance = mean(Abundance), 
-            mean_read_count = mean(read_count), 
-            mean_dna_conc = mean(DNA_Concentration),
-            .groups = "drop") %>% 
-      distinct() %>% 
-      group_by(study, Sample, Genus) %>%   
-      summarise(abund = sum(mean_abundance),
-            readcount = sum(mean_read_count),
-            dnaconc = mean(mean_dna_conc),
-            dnadiff_ms = mock_dna_concentration_zymo_equil - dnaconc,
-            .groups = "drop") %>% 
-      arrange(-abund)
-    }) %>% 
-  bind_rows()
-```
-
-```{r view varation in genus, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# to view variation in genus abundances across samples:
-# calculate mean, sd and cv across all samples for every Genus
-table_Inhouse_wetsus_2022_samples_ratio = 
-  Inhouse_wetsus_2022_studies_samples_ratio %>% 
-  select(Genus, Sample, abund) %>% 
-  pivot_wider(names_from = Sample, values_from = abund, values_fill = 0) %>%
-  rowwise() %>%   
-  mutate(mean = mean(c_across(where(is.numeric) & !matches(all_mock))),
-         sd = sd(c_across(where(is.numeric) & !matches(all_mock))),
-         CV = sd/mean*100) %>% 
-  arrange(-mean) %>% 
-  ungroup()
-
-table_Inhouse_wetsus_2023_samples_ratio = 
-  Inhouse_wetsus_2023_studies_samples_ratio %>% 
-  select(Genus, Sample, abund) %>% 
-  pivot_wider(names_from = Sample, values_from = abund, values_fill = 0) %>%
-  rowwise() %>%   
-  mutate(mean = mean(c_across(where(is.numeric) & !matches(all_mock))),
-         sd = sd(c_across(where(is.numeric) & !matches(all_mock))),
-         CV = sd/mean*100) %>% 
-  arrange(-mean) %>% 
-  ungroup()
-
-table_Zymo_log10_samples_ratio = 
-  Zymo_log10_studies_samples_ratio %>% 
-  select(Genus, Sample, abund) %>% 
-  pivot_wider(names_from = Sample, values_from = abund, values_fill = 0) %>%
-  rowwise() %>%   
-  mutate(mean = mean(c_across(where(is.numeric) & !matches(all_mock))),
-         sd = sd(c_across(where(is.numeric) & !matches(all_mock))),
-         CV = sd/mean*100) %>% 
-  arrange(-mean) %>% 
-  ungroup()
-
-table_Zymo_equil_samples_ratio = 
-  Zymo_equil_studies_samples_ratio %>% 
-  select(Genus, Sample, abund) %>% 
-  pivot_wider(names_from = Sample, values_from = abund, values_fill = 0) %>%
-  rowwise() %>%   
-  mutate(mean = mean(c_across(where(is.numeric) & !matches(all_mock))),
-         sd = sd(c_across(where(is.numeric) & !matches(all_mock))),
-         CV = sd/mean*100) %>% 
-  arrange(-mean) %>% 
-  ungroup()
-```
-
-```{r tabel maken voor plot sampel / mock (samples), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# remove mean, sd, cv from table and also remove mock sampels
-# plotting results 
-table2_inhouse_wetsus_2022_samples_dnadiff =
-  Inhouse_wetsus_2022_studies_samples_dnadiff %>% 
-  filter(Genus %in% Inhouse2022_correct$Genus) %>%
-  select(study, Genus, abund, dnadiff_ms)
-
-table2_inhouse_wetsus_2023_samples_dnadiff =
-Inhouse_wetsus_2023_studies_samples_dnadiff %>%
-  filter(Genus %in% Inhouse2023$Genus) %>%
-  select(study, Genus, abund, dnadiff_ms)
-
-table2_zymo_log10_samples_dnadiff =
-Zymo_log10_studies_samples_dnadiff %>%
-  filter(Genus %in% Zymo_log10$Genus) %>%
-  select(study, Genus, abund, dnadiff_ms)
-
-table2_zymo_equil_samples_dnadiff =
-Zymo_equil_studies_samples_dnadiff %>%
-  filter(Genus %in% Zymo_equil$Genus) %>%
-  select(study, Genus, abund, dnadiff_ms)
-```
-
-```{r test plot, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# Test plot 
-# plot inhouse_wetsus_2022
-table2_inhouse_wetsus_2022_samples_dnadiff_2 = 
-  table2_inhouse_wetsus_2022_samples_dnadiff %>% 
-  mutate(log10_abund = log10(abund + 0.0000001),
-         sqrt_abund = sqrt(abund + 0.0000001))
-
-# overall linear regression test (Genus random variable)
-Statistic_inhouse_wetsus_2022_samples =
-  table2_inhouse_wetsus_2022_samples_dnadiff_2 %>% 
-  with(lmerTest::lmer(sqrt_abund ~ dnadiff_ms + (1 | Genus)))
-
-summary_model_inhouse_wetsus_2022 <- summary(Statistic_inhouse_wetsus_2022_samples)
-coefficients_inhouse_wetsus_2022 <- summary_model_inhouse_wetsus_2022$coefficients
-
-p_value_inhouse_wetsus_2022 <- coefficients_inhouse_wetsus_2022["dnadiff_ms", "Pr(>|t|)"]
-correlation_inhouse_wetsus_2022 <- cor(table2_inhouse_wetsus_2022_samples_dnadiff_2$dnadiff_ms,
-                                        table2_inhouse_wetsus_2022_samples_dnadiff_2$log10_abund)
-
-# overall linear regression test (Genus-specific)
-Statistic_inhouse_wetsus_2022_samples_Genus_int =
-  table2_inhouse_wetsus_2022_samples_dnadiff_2 %>% 
-  with(lm(sqrt_abund ~ dnadiff_ms*Genus))
-
-hist(resid(Statistic_inhouse_wetsus_2022_samples_Genus_int))
-
-# test significance of interaction
-anova(Statistic_inhouse_wetsus_2022_samples_Genus_int)
-
-## interaction not significant: interpret p values from LmerTest
-anova(Statistic_inhouse_wetsus_2022_samples)
-summary(Statistic_inhouse_wetsus_2022_samples)
-
-
-inhouse_wetsus_2022_samples_dnadiff =
-  table2_inhouse_wetsus_2022_samples_dnadiff %>% 
-  ggplot(aes(x = dnadiff_ms, y = abund)) + 
-  geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  #facet_wrap(~Genus) +
-  scale_y_continuous(transform = "sqrt") +
-  #scale_x_log10() +
-  geom_smooth(method = "lm", se = F, color = "grey50") +
-  theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'DNA Concentration difference (Mock - Sample)', y = 'Percentage Mock OTU in sample (sqrt transformed) ') +
-  annotate("text", x = -Inf, y = Inf, label = paste0("P-value: ", format.pval(p_value_inhouse_wetsus_2022),
-                                                     "\nCorrelation: ", round(correlation_inhouse_wetsus_2022, 3)), 
-           hjust = -0.1, vjust = 1.1, size = 3.5, color = "black")
-
-
-ggsave("figures/inhouse_wetsus_2022_samples_dnadiff.pdf", plot = inhouse_wetsus_2022_samples_dnadiff, width = 6, height = 4)
-ggsave("figures/inhouse_wetsus_2022_sampels_dnadiff.jpg", plot = inhouse_wetsus_2022_samples_dnadiff, width = 6, height = 4)
-
-
-```
-
-```{r Calculate statistics and plot abundance against mock-sample DNA concentration (sampels), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# statastic inhouse_wetsus_2022 
-
-table3_inhouse_wetsus_2022_samples_dnadiff = 
-  table2_inhouse_wetsus_2022_samples_dnadiff %>% 
-  mutate(log10_abund = log10(abund + 0.0000001),
-         sqrt_abund = sqrt(abund + 0.0000001))
-
-# overall linear regression test (Genus random variable)
-Statistic_inhouse_wetsus_2022_samples =
-  table3_inhouse_wetsus_2022_samples_dnadiff %>% 
-  with(lmerTest::lmer(sqrt_abund ~ dnadiff_ms + (1 | Genus)))
-
-summary_model_inhouse_wetsus_2022 <- summary(Statistic_inhouse_wetsus_2022_samples)
-coefficients_inhouse_wetsus_2022 <- summary_model_inhouse_wetsus_2022$coefficients
-
-p_value_inhouse_wetsus_2022 <- coefficients_inhouse_wetsus_2022["dnadiff_ms", "Pr(>|t|)"]
-correlation_inhouse_wetsus_2022 <- cor(table2_inhouse_wetsus_2022_samples_dnadiff_2$dnadiff_ms,
-                                        table2_inhouse_wetsus_2022_samples_dnadiff_2$sqrt_abund)
-
-# overall linear regression test (Genus-specific)
-Statistic_inhouse_wetsus_2022_samples_Genus_int =
-  table3_inhouse_wetsus_2022_samples_dnadiff %>% 
-  with(lm(sqrt_abund ~ dnadiff_ms*Genus))
-
-hist(resid(Statistic_inhouse_wetsus_2022_samples_Genus_int))
-
-# test significance of interaction
-anova(Statistic_inhouse_wetsus_2022_samples_Genus_int)
-
-## interaction not significant: interpret p values from LmerTest
-anova(Statistic_inhouse_wetsus_2022_samples)
-summary(Statistic_inhouse_wetsus_2022_samples)
-
-
-# Plot inhouse_wetsus_2022
-inhouse_wetsus_2022_samples_dnadiff =
-  table2_inhouse_wetsus_2022_samples_dnadiff %>% 
-  ggplot(aes(x = dnadiff_ms, y = abund)) + 
-  geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  #facet_wrap(~Genus) +
-  scale_y_continuous(transform = "sqrt") +
-  #scale_x_log10() +
-  geom_smooth(method = "lm", se = F, color = "grey50") +
-  theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'DNA Concentration difference (Mock - Sample)', y = 'Percentage Mock OTU in sample (sqrt transformed) ') +
-  annotate("text", x = -Inf, y = Inf, label = paste0("P-value: ", format.pval(p_value_inhouse_wetsus_2022, 
-                                                                              scientific = T, 
-                                                                              digits = 3),
-                                                     "\nCorrelation: ", round(correlation_inhouse_wetsus_2022, 3)), 
-           hjust = -0.1, vjust = 1.1, size = 3.5, color = "black")
-
-ggsave("figures/inhouse_wetsus_2022_samples_dnadiff.pdf", plot = inhouse_wetsus_2022_samples_dnadiff, width = 6, height = 4)
-ggsave("figures/inhouse_wetsus_2022_sampels_dnadiff.jpg", plot = inhouse_wetsus_2022_samples_dnadiff, width = 6, height = 4)
-
-inhouse_wetsus_2022_samples_dnadiff
-
-# statastic inhouse_wetsus_2023
-table3_inhouse_wetsus_2023_samples_dnadiff = 
-  table2_inhouse_wetsus_2023_samples_dnadiff %>% 
-  mutate(log10_abund = log10(abund + 0.0000001),
-         sqrt_abund = sqrt(abund + 0.0000001))
-
-# overall linear regression test (Genus random variable)
-Statistic_inhouse_wetsus_2023_samples =
-  table3_inhouse_wetsus_2023_samples_dnadiff %>% 
-  with(lmerTest::lmer(log10_abund ~ dnadiff_ms + (1 | Genus)))
-
-summary_model_inhouse_wetsus_2023 <- summary(Statistic_inhouse_wetsus_2023_samples)
-coefficients_inhouse_wetsus_2023 <- summary_model_inhouse_wetsus_2023$coefficients
-
-p_value_inhouse_wetsus_2023 <- coefficients_inhouse_wetsus_2023["dnadiff_ms", "Pr(>|t|)"]
-correlation_inhouse_wetsus_2023 <- cor(table3_inhouse_wetsus_2023_samples_dnadiff$dnadiff_ms,
-                                        table3_inhouse_wetsus_2023_samples_dnadiff$log10_abund)
-
-# overall linear regression test (Genus-specific)
-Statistic_inhouse_wetsus_2023_samples_Genus_int =
-  table3_inhouse_wetsus_2023_samples_dnadiff %>% 
-  with(lm(log10_abund ~ dnadiff_ms*Genus))
-
-hist(resid(Statistic_inhouse_wetsus_2023_samples_Genus_int))
-
-# test significance of interaction
-anova(Statistic_inhouse_wetsus_2023_samples_Genus_int)
-
-## interaction not significant: interpret p values from LmerTest
-anova(Statistic_inhouse_wetsus_2023_samples)
-summary(Statistic_inhouse_wetsus_2023_samples)
-
-# ##
-# genus_models = 
-#   table3_inhouse_wetsus_2023_samples_dnadiff %>%
-#   group_by(Genus) %>%
-#   do(model = lm(log10_abund ~ dnadiff_ms, data = .))
-# 
-# genus_p_values =
-#   genus_models %>%
-#   summarise(Genus = Genus, p_value = summary(model)$coefficients["dnadiff_ms", "Pr(>|t|)"])
-
-
-# Plot inhouse_wetsus_2023
-inhouse_wetsus_2023_samples_dnadiff =
-  table2_inhouse_wetsus_2023_samples_dnadiff %>% 
-  ggplot(aes(x = dnadiff_ms, y = abund)) + 
-  geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  #facet_wrap(~Genus) +
-  scale_y_continuous(transform = "log10") +
-  geom_smooth(method = "lm", se = F, color = "grey50") +
-  theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'DNA Concentration difference (Mock - Sample)', y = 'Percentage Mock OTU in sample (log10 transformed) ') +
-  # geom_text(data = genus_p_values, aes(x = -Inf, y = Inf, 
-  #                                     label = paste0("p_value: ", format.pval(p_value, 
-  #                                                                             scientific = F,
-  #                                                                             digits = 3))),
-  #          hjust = -0.1, vjust = 1.1, size = 3.5, color = "black") 
-  annotate("text", x = -Inf, y = Inf, label = paste0("P-value: ", format.pval(p_value_inhouse_wetsus_2023, 
-                                                                              scientific = T, 
-                                                                              digits = 3),
-                                                     "\nCorrelation: ", round(correlation_inhouse_wetsus_2023, 3)), 
-           hjust = -0.1, vjust = 1.1, size = 3.5, color = "black")
-
-
-ggsave("figures/inhouse_wetsus_2023_samples_dnadiff.pdf", plot = inhouse_wetsus_2023_samples_dnadiff, width = 6, height = 4)
-ggsave("figures/inhouse_wetsus_2023_samples_dnadiff.jpg", plot = inhouse_wetsus_2023_samples_dnadiff, width = 6, height = 4)
-
-inhouse_wetsus_2023_samples_dnadiff
-
-# statastic zymo_log10
-table3_zymo_log10_samples_dnadiff = 
-  table2_zymo_log10_samples_dnadiff %>% 
-  mutate(log10_abund = log10(abund + 0.0000001),
-         sqrt_abund = sqrt(abund + 0.0000001))
-
-# overall linear regression test (Genus random variable)
-Statistic_zymo_log10_samples =
-  table3_zymo_log10_samples_dnadiff %>% 
-  with(lmerTest::lmer(sqrt_abund ~ dnadiff_ms + (1 | Genus)))
-
-summary_model_zymo_log10 <- summary(Statistic_zymo_log10_samples)
-coefficients_zymo_log10 <- summary_model_zymo_log10$coefficients
-
-p_value_zymo_log10 <- coefficients_zymo_log10["dnadiff_ms", "Pr(>|t|)"]
-correlation_zymo_log10 <- cor(table3_zymo_log10_samples_dnadiff$dnadiff_ms,
-                              table3_zymo_log10_samples_dnadiff$sqrt_abund)
-
-# overall linear regression test (Genus-specific)
-Statistic_zymo_log10_samples_Genus_int =
-  table3_zymo_log10_samples_dnadiff %>% 
-  with(lm(sqrt_abund ~ dnadiff_ms*Genus))
-
-hist(resid(Statistic_zymo_log10_samples_Genus_int))
-
-# test significance of interaction
-anova(Statistic_zymo_log10_samples_Genus_int)
-
-## interaction not significant: interpret p values from LmerTest
-anova(Statistic_zymo_log10_samples)
-summary(Statistic_zymo_log10_samples)
-
-
-# plot zymo log10
-zymo_log10_samples_dnadiff =
-  table2_zymo_log10_samples_dnadiff %>% 
-ggplot(aes(x = dnadiff_ms, y = abund)) + 
-  geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  #facet_wrap(~Genus) +
-  scale_y_continuous(transform = "sqrt") +
-  geom_smooth(method = "lm", se = F, color = "grey50") +
-  theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'DNA Concentration difference (Mock - Sample)', y = 'Percentage Mock OTU in sample (sqrt transformed) ') +
-  annotate("text", x = -Inf, y = Inf, label = paste0("P-value: ", format.pval(p_value_zymo_log10, 
-                                                                              scientific = T,
-                                                                              digits = 3),
-                                                     "\nCorrelation: ", round(correlation_zymo_log10, 3)), 
-           hjust = -0.1, vjust = 1.1, size = 3.5, color = "black")
-
-ggsave("figures/zymo_log10_samples_dnadiff.pdf", plot = zymo_log10_samples_dnadiff, width = 6, height = 4)
-ggsave("figures/zymo_log10_samples_dnadiff.jpg", plot = zymo_log10_samples_dnadiff, width = 6, height = 4)
-
-zymo_log10_samples_dnadiff
-
-# statastic zymo_equil
-table3_zymo_equil_samples_dnadiff = 
-  table2_zymo_equil_samples_dnadiff %>% 
-  mutate(log10_abund = log10(abund + 0.0000001),
-         sqrt_abund = sqrt(abund + 0.0000001))
-
-# overall linear regression test (Genus random variable)
-Statistic_zymo_equil_samples =
-  table3_zymo_equil_samples_dnadiff %>% 
-  with(lmerTest::lmer(log10_abund ~ dnadiff_ms + (1 | Genus)))
-
-summary_model_zymo_equil <- summary(Statistic_zymo_equil_samples)
-coefficients_zymo_equil <- summary_model_zymo_equil$coefficients
-
-p_value_zymo_equil <- coefficients_zymo_equil["dnadiff_ms", "Pr(>|t|)"]
-correlation_zymo_equil <- cor(table3_zymo_equil_samples_dnadiff$dnadiff_ms,
-                              table3_zymo_equil_samples_dnadiff$log10_abund)
-
-# overall linear regression test (Genus-specific)
-Statistic_zymo_equil_samples_Genus_int =
-  table3_zymo_equil_samples_dnadiff %>% 
-  with(lm(log10_abund ~ dnadiff_ms*Genus))
-
-hist(resid(Statistic_zymo_equil_samples_Genus_int))
-
-# test significance of interaction
-anova(Statistic_zymo_equil_samples_Genus_int)
-
-## interaction not significant: interpret p values from LmerTest
-anova(Statistic_zymo_equil_samples)
-summary(Statistic_zymo_equil_samples)
-
-
-# plot zymo equil
-plot_zymo_equil_samples_dnadiff =
-  table2_zymo_equil_samples_dnadiff %>% 
-  ggplot(aes(x = dnadiff_ms, y = abund)) + 
-  geom_point(aes(color = Genus), position = position_dodge(width = 0.5)) + 
-  #facet_wrap(~Genus) +
-  scale_y_continuous(transform = "log10") +
-  geom_smooth(method = "lm", se = F, color = "grey50") +
-  theme(axis.text.x = element_text(size = 8)) +
-  labs(x = 'DNA Concentration difference (Mock - Sample)', y = 'Percentage Mock OTU in sample (log10 transformed) ') +
-  annotate("text", x = -Inf, y = Inf, label = paste0("P-value: ", format.pval(p_value_zymo_equil, 
-                                                                              scientific = T,
-                                                                              digits = 3),
-                                                     "\nCorrelation: ", round(correlation_zymo_equil, 3)), 
-           hjust = -0.1, vjust = 1.1, size = 3.5, color = "black")
-
-ggsave("figures/plot_zymo_equil_samples_ratio.pdf", plot = plot_zymo_equil_samples_ratio, width = 6, height = 4)
-ggsave("figures/plot_zymo_equil_samples_ratio.jpg", plot = plot_zymo_equil_samples_ratio, width = 6, height = 4)
-
-plot_zymo_equil_samples_dnadiff
-```
-
-```{r statistiek (sampels), eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# statistic 
-Statistic_inhouse_wetsus_2022_samples =
-  table2_inhouse_wetsus_2022_samples_ratio %>% 
-  mutate(log2_abund = log2(abund+0.0000001)) %>% 
-  with(lmerTest::lmer(log2_abund ~ dnaratio_ms + (1|Genus))) %>%
-  anova
-
-Statistic_inhouse_wetsus_2022_samples
-
-#lm(abund ~ dnaconc, data = table2_inhouse_wetsus_2022_samples_ratio)
-
-Statistic_inhouse_wetsus_2023_samples =
-  table2_inhouse_wetsus_2023_samples_ratio %>% 
-  mutate(log2_abund = log2(abund+0.0000001)) %>% 
-  with(lmerTest::lmer(log2_abund ~ dnaratio_ms + (1|Genus))) %>% 
-  anova
-
-Statistic_inhouse_wetsus_2023_samples
-
-Statistic_zymo_log10_samples =
-  table2_zymo_log10_samples_ratio %>% 
-  mutate(log2_abund = log2(abund+0.0000001)) %>% 
-  with(lmerTest::lmer(log2_abund ~ dnaratio_ms + (1|Genus))) %>% 
-  anova
-
-Statistic_zymo_log10_samples
-
-Statistic_zymo_equil_samples =
-  table2_zymo_equil_samples_ratio %>% 
-  mutate(log2_abund = log2(abund+0.0000001)) %>% 
-  with(lmerTest::lmer(log2_abund ~ dnaratio_ms + (1|Genus))) %>% 
-  anova
-
-Statistic_zymo_equil_samples
 ```

@@ -1,0 +1,15 @@
+SampleID	Sample_mock	Mock_type	Source_mock	DNA_Concentration
+KJOH16	sample	NA	NA	20
+KJOH17	sample	NA	NA	20
+KJOH18	sample	NA	NA	20
+KJOH19	sample	NA	NA	20
+KJOH20	sample	NA	NA	20
+KJOH21	sample	NA	NA	20
+KJOH22	sample	NA	NA	20
+KJOH23	sample	NA	NA	20
+KJOH24	sample	NA	NA	20
+KJOH25	sample	NA	NA	20
+KJOH26	sample	NA	NA	20
+KJOH27	sample	NA	NA	20
+KJOH28	blank	NA	NA	20
+KJOH29	mock	log2	inhouse_wetsus_2023	0.6

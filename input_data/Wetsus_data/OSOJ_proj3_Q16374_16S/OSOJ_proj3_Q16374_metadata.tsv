@@ -1,0 +1,14 @@
+SampleID	Sample_mock	Mock_type	Source_mock	DNA_Concentration
+OSOJ.1	sample	NA	NA	0.2
+OSOJ.2	sample	NA	NA	0.03
+OSOJ.3	sample	NA	NA	0.083
+OSOJ.4	sample	NA	NA	0.0214
+OSOJ.5	sample	NA	NA	0.109
+OSOJ.6	sample	NA	NA	0.042
+OSOJ.7	sample	NA	NA	0.356
+OSOJ.8	sample	NA	NA	0.147
+OSOJ.9	sample	NA	NA	0.026
+OSOJ.10	sample	NA	NA	0.065
+OSOJ.11	sample	NA	NA	0.122
+OSOJ.12	sample	NA	NA	0.017
+OSOJ.13	mock	log2	inhouse_wetsus_2022	0.6

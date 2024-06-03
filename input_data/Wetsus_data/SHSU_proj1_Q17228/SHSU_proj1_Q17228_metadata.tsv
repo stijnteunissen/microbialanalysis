@@ -1,0 +1,6 @@
+SampleID	Sample_mock	Mock_type	Source_mock	DNA_Concentration
+SHSU.1	sample	NA	NA	5.21
+SHSU.2	sample	NA	NA	7.97
+SHSU.3	sample	NA	NA	1.0
+SHSU.4	sample	NA	NA	1.12
+SHSU.5	mock	log2	inhouse_wetsus_2023	0.6

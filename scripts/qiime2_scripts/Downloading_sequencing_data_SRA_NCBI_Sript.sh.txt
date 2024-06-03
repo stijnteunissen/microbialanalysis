@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Huidige directory pad ophalen
+current_dir=$(pwd)
+
+# Naam van het project ophalen door de laatste twee delen van het pad te verwijderen
+project_nummer=$(basename "$(dirname "$current_dir")")
+
+# Zoek naar een bestand dat eindigt op "metadata.tsv"
+input_file=$(find . -maxdepth 1 -name '*metadata.tsv')
+
+# Controleren of het bestand bestaat
+if [[ -f "$input_file" ]]; then
+  # Haal de SampleID kolom op en sla op in een nieuw bestand
+  awk -F'\t' 'NR==1 {for (i=1; i<=NF; i++) if ($i=="SampleID") col=i} NR>2 {print $col}' "$input_file" > "${project_nummer}_runs.txt"
+  echo "SampleIDs zijn succesvol opgeslagen in ${project_nummer}_runs.txt"
+else
+  echo "Geen bestand gevonden dat eindigt op 'metadata.tsv'."
+  exit 1
+fi
+
+# Download de data in parallel
+cat "${project_nummer}_runs.txt" | parallel -j0 /export/microlab/users/STEU/SRA_toolkit/sratoolkit.3.1.0-ubuntu64/bin/fasterq-dump {}
+
+# Verplaats .fastq-bestanden naar een eigen map
+mkdir -p fastq
+mv *.fastq fastq
+
+# Voorbereiden van bestanden voor Qiime2 import
+cd fastq || exit
+mkdir -p manifest
+
+# Maak manifestbestand aan
+echo "# paired-end PHRED 33 fastq manifest file for forward and reverse reads" > manifest1.txt
+echo -e "sample-id\tforward-absolute-filepath\treverse-absolute-filepath" >> manifest1.txt
+
+# Maak tekstbestand met ID, pad naar forward en pad naar reverse, gescheiden door tabs
+ls *.fastq | cut -d "_" -f 1 | sort | uniq | parallel -j0 --keep-order 'echo -e "{/}\t"$PWD"/{/}_1.fastq\t"$PWD"/{/}_2.fastq"' | tr -d "'" > manifest2.txt
+
+# Maak volledig bestand
+cat manifest1.txt manifest2.txt > manifest/manifest.tsv
+
+# Verwijder tijdelijke tekstbestanden
+rm manifest1.txt manifest2.txt
+cd ..
+
+echo "Manifest bestand is aangemaakt in de 'fastq/manifest' directory."
+
+# Activeer qiime2 in terminal
+source /export/microlab/miniconda3/etc/profile.d/conda.sh
+conda activate /export/microlab/miniconda3/envs/qiime2-2022.11.16S
+
+# output
+output_dir="${current_dir}/../Output/"
+mkdir -p "$output_dir"
+
+# Importeer data in qiime2
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path fastq/manifest/manifest.tsv \
+  --output-path "${output_dir}/Artifacts_qza/${project_nummer}_demux.qza" \
+  --input-format PairedEndFastqManifestPhred33V2
+
+echo "Data is geïmporteerd in Qiime2. Output bestand: ${output_dir}/Artifacts_qza/${project_nummer}_demux.qza"
+
+qiime demux summarize \
+  --i-data "${output_dir}/Artifacts_qza/${project_nummer}_demux.qza" \
+  --o-visualization "${output_dir}/Visualization_qzv/${project_nummer}_demux.qzv"
+
+echo "Demux samenvatting is gemaakt: ${output_dir}/Visualization_qzv/${project_nummer}_demux.qzv"

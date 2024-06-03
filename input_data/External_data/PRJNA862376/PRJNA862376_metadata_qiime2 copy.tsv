@@ -1,0 +1,4 @@
+SampleID	Sample_mock	Mock_type	Source_mock	DNA_Concentration
+#q2:types	categorical	categorical	categorical	numeric
+SRR20752614	sample	NA	NA	63.6
+SRR20752613	sample	NA	NA	60

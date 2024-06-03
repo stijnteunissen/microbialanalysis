@@ -67,12 +67,14 @@ manuscript/
 # redundant data
 /input_data/External_data/**/*.qzv
 /input_data/External_data/**/*trimmed_demux_seqs.qza
+/input_data/Wetsus_data/**/*trimmed_demux_seqs_unzip.qza
 /input_data/External_data/**/*representative_sequences.qza
 /input_data/External_data/**/*.xlsx
 /input_data/External_data/**/*.txt
 
 /input_data/Wetsus_data/**/*.qzv
 /input_data/Wetsus_data/**/*trimmed_demux_seqs.qza
+/input_data/Wetsus_data/**/*trimmed_demux_seqs_unzip.qza
 /input_data/Wetsus_data/**/*representative_sequences.qza
 /input_data/Wetsus_data/**/*.xlsx
 /input_data/Wetsus_data/**/*.txt

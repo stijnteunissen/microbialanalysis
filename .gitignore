@@ -64,7 +64,7 @@ manuscript/
 /figures/*.jpg
 /figures/*.tiff
 
-/Mock_contamination_analyse_files
+/Mock_contamination_analyse_files/
 
 # redundant data
 /input_data/External_data/**/*.qzv

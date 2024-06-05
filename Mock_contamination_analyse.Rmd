@@ -875,11 +875,11 @@ ggsave("figures/bar_plot_all_mock_studies.jpg", plot = bar_plot_all_mock_studies
 
 bar_plot_all_mock_studies
 
-Genus_abundance_all_mock_studies = 
-  all_mock_studies %>% 
-  group_by(Sample, Genus) %>%
-  summarize(total_abundance = sum(Abundance))
-#view(Genus_abundance_all_mock_studies)
+# Genus_abundance_all_mock_studies = 
+#   all_mock_studies %>% 
+#   group_by(Sample, Genus, Source_mock) %>%
+#   summarize(total_abundance = sum(Abundance))
+# view(Genus_abundance_all_mock_studies)
 
 ```
 
@@ -1326,24 +1326,25 @@ all_studies_list =
 
 ```{r Prevalence plotten, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=5}
 # plot prevalaence; median 
-all_studies_plot_prevalence_median_prevalence =
+all_studies_plot_median_abund =
   all_studies_list %>%
-  filter(sample_char %in% c("prevalence", "median_abund")) %>% 
-  ggplot(aes(x=value, y=Abundance, shape = sample_char)) +
+  filter(sample_char == "median_abund") %>% 
+  ggplot(aes(x=value, y=Abundance)) +
   geom_point(aes(color = study), size = 1.1, alpha = 0.7) +
   ylim(0, 1.5) +
   stat_smooth(aes(group = study, color = study), method = "lm", se = T) +
   facet_wrap(~sample_char, nrow = 2, ncol = 4, scales = "free") +
   labs(y="Percentage Sample ASV in mock community")
 
-ggsave("figures/prevalence_median_prevalence.pdf", plot = all_studies_plot_prevalence_median_prevalence, width = 9, height = 5)
-ggsave("figures/prevalence_median_prevalence.jpg", plot = all_studies_plot_prevalence_median_prevalence, width = 9, height = 5)
+ggsave("figures/all_studies_plot_median_abund.pdf", plot = all_studies_plot_median_abund, width = 9, height = 5)
+ggsave("figures/all_studies_plot_median_abund.jpg", plot = all_studies_plot_median_abund, width = 9, height = 5)
 
-all_studies_plot_prevalence_median_prevalence
+all_studies_plot_median_abund
 
 # plot prevalaence 
-all_studies_plot_prevalence =
+all_studies_plot_max_mean_median_abund =
   all_studies_list %>% 
+  filter(sample_char != "prevalence") %>% 
   ggplot(aes(x=value, y=Abundance, shape = sample_char)) +
   geom_point(aes(color = study), size = 1.1, alpha = 0.7) +
   ylim(0, 1.5) +
@@ -1351,10 +1352,28 @@ all_studies_plot_prevalence =
   facet_wrap(~sample_char, nrow = 2, ncol = 4, scales = "free") +
   labs(y="Percentage Sample ASV in mock community")
 
-ggsave("figures/prevalence.pdf", plot = all_studies_plot_prevalence, width = 9, height = 5)
-ggsave("figures/prevalence.jpg", plot = all_studies_plot_prevalence, width = 9, height = 5)
+ggsave("figures/all_studies_plot_max_mean_median_abund.pdf", plot = all_studies_plot_max_mean_median_abund, width = 9, height = 5)
+ggsave("figures/all_studies_plot_max_mean_median_abund.jpg", plot = all_studies_plot_max_mean_median_abund, width = 9, height = 5)
+
+all_studies_plot_max_mean_median_abund
+
+# plot prevalaence; prevalence
+all_studies_plot_prevalence =
+  all_studies_list %>%
+  filter(sample_char == "prevalence") %>% 
+  ggplot(aes(x=value, y=Abundance)) +
+  geom_point(aes(color = study), size = 1.1, alpha = 0.7) +
+  scale_y_log10() +
+  stat_smooth(aes(group = study, color = study), method = "lm", se = T) +
+  facet_wrap(~sample_char, nrow = 2, ncol = 4, scales = "free") +
+  labs(y="Percentage Sample ASV in mock community (Log10)")
+
+ggsave("figures/all_studies_plot_prevalence.pdf", plot = all_studies_plot_prevalence, width = 9, height = 5)
+ggsave("figures/all_studies_plot_prevalence.jpg", plot = all_studies_plot_prevalence, width = 9, height = 5)
 
 all_studies_plot_prevalence
+
+
 ```
 
 ```{r prevalence statstiek}

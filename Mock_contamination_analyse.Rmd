@@ -1334,12 +1334,13 @@ all_studies_plot_median_abund =
   ylim(0, 1.5) +
   stat_smooth(aes(group = study, color = study), method = "lm", se = T) +
   facet_wrap(~sample_char, nrow = 2, ncol = 4, scales = "free") +
-  labs(y="Percentage Sample ASV in mock community")
+  labs(y="Percentage Sample ASV in mock community", x = "Percentage abundance")
 
 ggsave("figures/all_studies_plot_median_abund.pdf", plot = all_studies_plot_median_abund, width = 9, height = 5)
 ggsave("figures/all_studies_plot_median_abund.jpg", plot = all_studies_plot_median_abund, width = 9, height = 5)
 
 all_studies_plot_median_abund
+
 
 # plot prevalaence 
 all_studies_plot_max_mean_median_abund =
@@ -1366,7 +1367,7 @@ all_studies_plot_prevalence =
   scale_y_log10() +
   stat_smooth(aes(group = study, color = study), method = "lm", se = T) +
   facet_wrap(~sample_char, nrow = 2, ncol = 4, scales = "free") +
-  labs(y="Percentage Sample ASV in mock community (Log10)")
+  labs(y="Percentage Sample ASV in mock community (Log10)", x = "Prevalence")
 
 ggsave("figures/all_studies_plot_prevalence.pdf", plot = all_studies_plot_prevalence, width = 9, height = 5)
 ggsave("figures/all_studies_plot_prevalence.jpg", plot = all_studies_plot_prevalence, width = 9, height = 5)
@@ -1380,8 +1381,8 @@ all_studies_plot_prevalence
 # p value 
 # overall linear regression test (Study random variable)
 statistic_all_studies =
-  all_studies_list %>% 
-  filter(sample_char == "median_abund") %>%  
+  all_studies_list %>%
+  filter(sample_char == "median_abund") %>%
   with(lm(Abundance ~ value * study))
 
 # anova
@@ -1390,7 +1391,7 @@ anova(statistic_all_studies)
 # overall linear regression test (Study random variable)
 statistic_all_studies_2 =
   all_studies_list %>% 
-  filter(sample_char == "prevalence") %>% 
+  filter(sample_char == "prevalence") %>%
   with(lm(Abundance ~ value * study))
 
 # anova
@@ -1399,7 +1400,7 @@ anova(statistic_all_studies_2)
 #significant interaction 
 
 # pairwise comparison of slopes among sample characters
-emmeans::emtrends(statistic_all_studies, pairwise ~ study, var = "value")
+emmeans::emtrends(statistic_all_studies_2, pairwise ~ study, var = "value")
 
 # notatie = (anova: F12,56776 = 5255.74, p < 10^-15)
 ```

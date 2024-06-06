@@ -325,7 +325,7 @@ physeq_PRJNA862376 = tax_clean(physeq_PRJNA862376)
 ```
 
 ```{r bind data, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-# bind different studies
+# Normalizes counts to percentages and adds study label
 
 # Wetsus data
 
@@ -632,6 +632,7 @@ bind_rows(Zymo_log10_studies)
 Zymo_equil_studies <- list(OBER_proj3_Q15250_prevalence, PRJNA862376_prevalence, PRJEB34118_prevalence)
 bind_rows(Zymo_equil_studies)
 
+# bind all studies
 all_studies <- list(BKIS_proj1_Q16705_prevalence, OBER_proj3_Q15250_prevalence, OSOJ_proj3_Q16374_prevalence, OSOJ_proj4_Q17230_prevalence, OSOJ_proj5_Q17229_prevalence, SHSU_proj1_Q17228_prevalence, YLUO_projx_Q12374_prevalence, YXIN_proj1_Q16712_prevalence, PRJNA862376_prevalence, PRJEB34118_prevalence, KJOH_proj04_Q17535_prevalence, KJOH_proj05_Q17536_prevalence, KJOH_proj06_Q17537_prevalence)
 ```
 
@@ -789,6 +790,7 @@ sample_names_zymo_equil =
 ```{r mock bar plot, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
 # barplot for mock communities
 
+# Filter Mock samples on theoretical genus
 # inhouse_mock_2022
 mock_only_Inhouse_wetsus_2022_samples =
   Inhouse_wetsus_2022_studies %>%
@@ -854,6 +856,7 @@ genus_colors <- scales::hue_pal()(length(unique_genera) - 1)
 names(genus_colors) <- unique_genera[unique_genera != "Other genera"]
 genus_colors["Other genera"] <- "grey"
 
+# making barplot 
 bar_plot_all_mock_studies =
   all_mock_studies %>% 
   ggplot(aes(x = Sample , y = Abundance, fill = Genus)) +
@@ -875,6 +878,7 @@ ggsave("figures/bar_plot_all_mock_studies.jpg", plot = bar_plot_all_mock_studies
 
 bar_plot_all_mock_studies
 
+# view genus in mock community
 # Genus_abundance_all_mock_studies = 
 #   all_mock_studies %>% 
 #   group_by(Sample, Genus, Source_mock) %>%
@@ -883,7 +887,7 @@ bar_plot_all_mock_studies
 
 ```
 
-```{r view genera in the mock}
+```{r view genera in the mock, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
 # view all genera in mock
 # mock_only_Inhouse_wetsus_2022_samples %>%
 #   filter(abund > 0) %>%
@@ -922,6 +926,8 @@ bar_plot_all_mock_studies
 ```
 
 ```{r abudance theoretical vs measured, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+# Summarizes and joins measured vs theoretical abundances
+
 # inhouse wetsus 2022
 table_measured_vs_theoretical_inhouse_wetsus_2022 =
   mock_only_Inhouse_wetsus_2022_samples %>%
@@ -954,8 +960,6 @@ measured_vs_theoretical_inhouse_wetsus_2022
 
 abundance_difference_inhouse_wetsus_2022 =
   table_measured_vs_theoretical_inhouse_wetsus_2022$mean_abund_inhouse_wetsus_2022 -     table_measured_vs_theoretical_inhouse_wetsus_2022$Inhouse2022_abund
-
-#t_test_result <- t.test(abundance_difference_inhouse_wetsus_2022)
 
 # inhouse wetsus 2023
 table_measured_vs_theoretical_inhouse_wetsus_2023 =
@@ -1318,9 +1322,9 @@ mock_only_PRJNA862376 =
 all_studies_list =
   list(mock_only_inhouse_2022_BKIS_proj1_Q16705, mock_only_inhouse_2023_BKIS_proj1_Q16705,
        mock_only_inhouse_2022_OBER_proj3_Q15250, mock_only_zymo_OBER_proj3_Q15250, mock_only_OSOJ_proj3_Q16374,
-       mock_only_OSOJ_proj4_Q17230, mock_only_OSOJ_proj5_Q17229, mock_only_SHSU_proj1_Q17228, mock_only_YLUO_projx_Q12374,
-       mock_only_YXIN_proj1_Q16712, mock_only_PRJEB34118, mock_only_PRJNA862376, mock_only_KJOH_proj04_Q17535,
-       mock_only_KJOH_proj05_Q17536, mock_only_KJOH_proj06_Q17537) %>% 
+       mock_only_OSOJ_proj4_Q17230, mock_only_OSOJ_proj5_Q17229, mock_only_SHSU_proj1_Q17228, 
+       mock_only_YLUO_projx_Q12374, mock_only_YXIN_proj1_Q16712, mock_only_PRJEB34118, mock_only_PRJNA862376, 
+       mock_only_KJOH_proj04_Q17535, mock_only_KJOH_proj05_Q17536, mock_only_KJOH_proj06_Q17537) %>% 
   bind_rows()
 ```
 
@@ -1407,6 +1411,7 @@ emmeans::emtrends(statistic_all_studies_2, pairwise ~ study, var = "value")
 
 
 ```{r contaminant slopes, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+# calculate trend (contamination slope)
 lm_sample_contaminants = 
   all_studies_list %>% 
   with(lm(Abundance~study*sample_char*value)) 
@@ -1418,7 +1423,7 @@ trends =
     as_tibble() %>% 
     filter(lower.CL > 0)
 
-# calculate differences
+# calculate differences and ratio DNA concentration
 abund_dna_char = 
 bind_rows(all_studies_table_dnaconc_mock, all_studies_table_dnaconc_sample) %>% 
   pivot_wider(names_from = sample_mock, values_from = dna_value) %>% 
@@ -1426,6 +1431,7 @@ bind_rows(all_studies_table_dnaconc_mock, all_studies_table_dnaconc_sample) %>%
          dna_char_diff = mock - sample) %>% 
   inner_join(., trends, by = "study", relationship = "many-to-many")
 
+# plot median dnaconc (ratio)
 ratio_abund_dna_char_plot_prevalence_median =
   abund_dna_char %>% 
   filter(dna_char == "median_dnaconc") %>% 
@@ -1443,6 +1449,7 @@ ggsave("figures/ratio_abund_dna_char_plot_prevalence_median.jpg",
 
 ratio_abund_dna_char_plot_prevalence_median
 
+# plot median dnaconc (diff)
 diff_abund_dna_char_plot_prevalence_median =
   abund_dna_char %>%
   filter(dna_char == "median_dnaconc") %>% 
@@ -1459,6 +1466,7 @@ ggsave("figures/diff_abund_dna_char_plot_prevalence_median.jpg",
 
 diff_abund_dna_char_plot_prevalence_median
 
+# plot (ratio)
 ratio_abund_dna_char_plot =
   abund_dna_char %>% 
   ggplot(aes(x = dna_char_ratio, y = value.trend)) +
@@ -1473,6 +1481,7 @@ ggsave("figures/ratio_abund_dna_char_plot.jpg", plot = ratio_abund_dna_char_plot
 
 ratio_abund_dna_char_plot
 
+# plot (diff)
 diff_abund_dna_char_plot =
   abund_dna_char %>% 
   ggplot(aes(x = dna_char_diff, y = value.trend)) +
@@ -1488,7 +1497,7 @@ diff_abund_dna_char_plot
 
 ```
 
-```{r statstiek contaminat slope}
+```{r statstiek contaminat slope, eval=TRUE, echo=TRUE, include=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
 # p value dna ratio
 abund_dna_char_ratio =
 abund_dna_char %>% 
